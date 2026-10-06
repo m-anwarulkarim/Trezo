@@ -35,6 +35,11 @@ import {
   waHref,
 } from "@/data/landing/foil-bag.data";
 
+export const landingPageMeta = {
+  title: "অ্যালুমিনিয়াম ফয়েল জিপলক ব্যাগ 2 (Foil Bag 2)",
+  description: "ইউটিউব শর্টস ভিডিও সহ অ্যালুমিনিয়াম ফয়েল জিপলক ব্যাগ ল্যান্ডিং পেজ।",
+};
+
 export const Route = createFileRoute("/lp/foil-bag-2")({
   head: () => ({
     meta: [
@@ -449,16 +454,55 @@ function FoilBagLanding2() {
         @keyframes fb-float{0%{transform:translateY(0) scale(1);opacity:0;}20%{opacity:1;}80%{opacity:1;}100%{transform:translateY(-600px) scale(1.8);opacity:0;}}
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .fb-china-badge{
+          display:inline-flex;align-items:center;gap:6px;
+          padding:5px 14px;border-radius:999px;
+          background:linear-gradient(135deg,#c8102e 0%,#de1c31 40%,#c8102e 100%);
+          background-size:200% 100%;
+          color:#fff;font-weight:800;font-size:13px;letter-spacing:.02em;
+          border:1.5px solid rgba(255,255,255,.35);
+          box-shadow:0 4px 18px -4px rgba(200,16,46,.6),0 0 0 0 rgba(200,16,46,.4);
+          animation:fb-china-shine 3s linear infinite,fb-china-pulse 2.4s ease-in-out infinite;
+          position:relative;overflow:hidden;
+          text-shadow:0 1px 3px rgba(0,0,0,.25);
+        }
+        .fb-china-badge::after{
+          content:"";
+          position:absolute;inset:0;
+          background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);
+          background-size:200% 100%;
+          animation:fb-china-shimmer 2.2s linear infinite;
+        }
+        @keyframes fb-china-shine{
+          0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}
+        }
+        @keyframes fb-china-shimmer{
+          0%{background-position:200% 0;}100%{background-position:-200% 0;}
+        }
+        @keyframes fb-china-pulse{
+          0%,100%{box-shadow:0 4px 18px -4px rgba(200,16,46,.6),0 0 0 0 rgba(200,16,46,.4);}
+          50%{box-shadow:0 6px 24px -2px rgba(200,16,46,.8),0 0 0 6px rgba(200,16,46,.08);}
+        }
       `}</style>
 
       {/* Top Header */}
-      <header className="sticky top-0 z-30 border-b border-[rgba(59,130,246,.15)] bg-[rgba(255,255,255,.92)] backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-30 border-b border-[rgba(59,130,246,.15)] bg-[rgba(255,255,255,.95)] backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-1 sm:gap-3">
           <Logo />
+          <div className="flex flex-col items-center text-center justify-center min-w-0 flex-1 px-1">
+            <div className="inline-flex flex-col items-center bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border border-blue-200/80 px-2.5 sm:px-4 py-1 rounded-xl shadow-xs">
+              <span className="text-[11px] sm:text-[13px] font-black text-slate-900 tracking-wide truncate max-w-[140px] xs:max-w-[210px] sm:max-w-none">
+                অ্যালুমিনিয়াম ফয়েল ব্যাগ
+              </span>
+              <span className="text-[8.5px] sm:text-[10px] font-bold text-blue-700 tracking-tight whitespace-nowrap">
+                🛡️ এয়ারটাইট · লিকপ্রুফ · রিইউজেবল
+              </span>
+            </div>
+          </div>
           <button
             type="button"
             onClick={() => scrollToForm()}
-            className="fb-cta px-4 py-2 rounded-xl font-bold text-xs md:text-sm shadow-md"
+            className="fb-cta px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-xs md:text-sm shadow-md whitespace-nowrap shrink-0"
           >
             অর্ডার করুন
           </button>

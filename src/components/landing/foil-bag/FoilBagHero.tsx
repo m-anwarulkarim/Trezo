@@ -40,7 +40,7 @@ export function FoilBagHero({
             <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(59,130,246,.25)] bg-[rgba(59,130,246,.08)] px-3 py-1 text-xs font-bold text-[#2563eb]">
               <Sparkles className="w-3.5 h-3.5 text-[#2563eb]" /> প্রিমিয়াম কিচেন কালেকশন
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-extrabold text-amber-800 shadow-sm">
+            <span className="fb-china-badge">
               🇨🇳 Made In China অরিজিনাল
             </span>
           </div>

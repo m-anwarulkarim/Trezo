@@ -60,7 +60,7 @@ export function FoilBagCheckoutForm({
             <span className="inline-flex items-center gap-2 rounded-full bg-[rgba(59,130,246,.08)] border border-[rgba(59,130,246,.25)] px-3 py-1 text-xs font-bold text-[#2563eb]">
               <Gift className="w-3.5 h-3.5 text-[#2563eb]" /> ক্যাশ অন ডেলিভারি
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-xs font-extrabold text-amber-800 shadow-sm">
+            <span className="fb-china-badge">
               🇨🇳 Made In China অরিজিনাল
             </span>
           </div>
@@ -71,14 +71,14 @@ export function FoilBagCheckoutForm({
         </div>
 
         <form onSubmit={handleSubmit} className="fb-glass mt-8 p-5 md:p-7" data-reveal>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2">
             {tiers.map((t, i) => {
               const active = t.pieces === pieces;
               return (
                 <article
                   key={t.pieces}
                   onClick={() => selectPackage(t.pieces)}
-                  className={`relative cursor-pointer p-4 rounded-2xl border transition ${
+                  className={`relative cursor-pointer p-2 sm:p-4 rounded-xl sm:rounded-2xl border transition ${
                     active
                       ? "border-[#3b82f6] bg-[rgba(59,130,246,.12)] fb-selected"
                       : "border-[rgba(59,130,246,.2)] bg-white hover:border-[rgba(59,130,246,.4)]"
@@ -97,31 +97,33 @@ export function FoilBagCheckoutForm({
                       {t.ribbon}
                     </span>
                   ) : null}
-                  <div className="rounded-xl overflow-hidden bg-[rgba(255,255,255,.04)]">
+                  <div className="rounded-lg overflow-hidden bg-[rgba(255,255,255,.04)]">
                     <img
                       src={t.image}
                       alt={`${bn(t.pieces)} পিস ফয়েল জিপলক ব্যাগ প্যাক`}
-                      className="w-full h-36 object-contain"
+                      className="w-full h-20 sm:h-36 object-contain"
                       loading="lazy"
                       width={600}
                       height={600}
                     />
                   </div>
-                  <div className="mt-3 flex items-center justify-between gap-2">
-                    <h3 className="text-base font-extrabold">{bn(t.pieces)} পিস</h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#2563eb] border border-[rgba(59,130,246,.3)] rounded-full px-2 py-0.5">
+                  <div className="mt-1.5 flex items-center justify-between gap-1">
+                    <h3 className="text-[11px] sm:text-base font-extrabold leading-tight">{bn(t.pieces)} পিস</h3>
+                    <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-[#2563eb] border border-[rgba(59,130,246,.3)] rounded-full px-1 sm:px-2 py-0.5 whitespace-nowrap">
                       {t.badge}
                     </span>
                   </div>
-                  <div className="mt-2 flex items-center justify-between gap-2 flex-wrap">
-                    <span className="text-xl font-extrabold text-[#2563eb]">৳{bn(t.price)}</span>
-                    <span className="text-xs line-through text-[#334155]">৳{bn(t.original)}</span>
-                    <span className="text-[10px] font-bold text-emerald-600">৳{bn(t.saving)} সাশ্রয়</span>
+                  <div className="mt-1 flex items-baseline justify-between gap-0.5">
+                    <span className="text-sm sm:text-xl font-extrabold text-[#2563eb] shrink-0 whitespace-nowrap">৳{bn(t.price)}</span>
+                    <span className="text-[8px] sm:text-xs line-through text-[#64748b] shrink-0 whitespace-nowrap">৳{bn(t.original)}</span>
+                    <span className="text-[7px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-50 px-0.5 sm:px-1 py-0.5 rounded border border-emerald-100 shrink-0 whitespace-nowrap">
+                      ৳{bn(t.saving)} সাশ্রয়
+                    </span>
                   </div>
-                  <ul className="mt-2 space-y-1 text-xs text-[#334155]">
+                  <ul className="mt-1.5 space-y-0.5 text-[10px] sm:text-xs text-[#334155]">
                     {t.perks.map((p) => (
-                      <li key={p} className="flex items-start gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-[#2563eb] shrink-0" /> {p}
+                      <li key={p} className="flex items-start gap-1">
+                        <CheckCircle2 className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mt-0.5 text-[#2563eb] shrink-0" /> {p}
                       </li>
                     ))}
                   </ul>

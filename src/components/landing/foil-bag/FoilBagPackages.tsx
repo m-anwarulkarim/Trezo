@@ -116,10 +116,10 @@ export function FoilBagPackages({
                         {t.badge}
                       </span>
                     </div>
-                    <div className="mt-2 flex items-end gap-2">
-                      <span className="text-3xl font-extrabold text-[#2563eb]">৳{bn(t.price)}</span>
-                      <span className="text-sm line-through text-[#334155]">৳{bn(t.original)}</span>
-                      <span className="ml-auto text-xs font-bold text-emerald-600">
+                    <div className="mt-2 flex items-baseline justify-between gap-1">
+                      <span className="text-xl sm:text-3xl font-extrabold text-[#2563eb] shrink-0 whitespace-nowrap">৳{bn(t.price)}</span>
+                      <span className="text-[11px] sm:text-sm line-through text-[#64748b] shrink-0 whitespace-nowrap">৳{bn(t.original)}</span>
+                      <span className="text-[10px] sm:text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 shrink-0 whitespace-nowrap">
                         ৳{bn(t.saving)} সাশ্রয়
                       </span>
                     </div>
