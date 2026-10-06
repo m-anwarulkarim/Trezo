@@ -485,6 +485,19 @@ function FoilBagLanding() {
     }
   };
 
+  const isFormFilled = () => {
+    const m = mobile.replace(/\D/g, "");
+    return name.trim().length >= 2 && PHONE_RE.test(m) && address.trim().length >= 5;
+  };
+
+  const handleFloatingCta = () => {
+    if (isFormFilled() && !submitting) {
+      void handleSubmit();
+    } else {
+      scrollToForm();
+    }
+  };
+
   return (
     <div className="fb-root min-h-screen">
       <style>{`
@@ -1257,8 +1270,14 @@ function FoilBagLanding() {
             <div className="text-[12px] text-[#334155]">সর্বমোট</div>
             <div className="font-extrabold text-[#2563eb]">৳{bn(grandTotal)}</div>
           </div>
-          <button type="button" onClick={() => scrollToForm()} className="fb-cta flex-1 rounded-full py-3 font-bold">
-            অর্ডার করুন
+          <button
+            type="button"
+            onClick={handleFloatingCta}
+            disabled={submitting}
+            className="fb-cta flex-1 rounded-full py-3 font-bold text-sm disabled:opacity-70 flex items-center justify-center gap-1.5"
+          >
+            <Flame className="w-4 h-4" />{" "}
+            {submitting ? "অর্ডার হচ্ছে..." : isFormFilled() ? "অর্ডার কনফার্ম করুন" : "অর্ডার করুন"}
           </button>
         </div>
       </div>
