@@ -244,30 +244,43 @@ export async function fetchOverviewMetrics(
       }
     }
 
-    if (st === "pending") {
-      pendingCount++;
-    } else if (
+    const isDelivered = st === "delivered" || st === "partial";
+    const isConfirmedOrShipped =
       st === "confirmed" ||
-      st === "delivered" ||
+      st === "entry_done" ||
       st === "shipped" ||
       st === "in_transit" ||
-      st === "on_the_way"
-    ) {
+      st === "on_the_way" ||
+      isDelivered;
+    const isCancelledOrReturned =
+      st === "cancelled" ||
+      st === "cancel" ||
+      st === "returned" ||
+      st === "return" ||
+      st === "pending_return" ||
+      st === "missing";
+
+    if (isDelivered) {
+      deliveredCount++;
+      deliveredRevenue += amount;
+    }
+
+    if (isConfirmedOrShipped) {
       confirmedCount++;
       confirmedRevenue += amount;
       if (createdAt) {
         const trendItem = trendMap[format(new Date(createdAt), "yyyy-MM-dd")];
         if (trendItem) trendItem.confirmedOrders += 1;
       }
-
-      if (st === "delivered") {
-        deliveredCount++;
-        deliveredRevenue += amount;
+    } else if (isCancelledOrReturned) {
+      if (st.includes("return")) {
+        returnedCount++;
+      } else {
+        cancelledCount++;
       }
-    } else if (st === "cancelled" || st === "cancel") {
-      cancelledCount++;
-    } else if (st === "returned" || st === "return") {
-      returnedCount++;
+    } else {
+      // All pending / follow-up statuses (pending, no_response, hold, busy, good_but_no_response, pre_order, etc.)
+      pendingCount++;
     }
   }
 
@@ -291,8 +304,8 @@ export async function fetchOverviewMetrics(
     {
       status: "confirmed",
       label: "কনফার্মড (Confirmed)",
-      count: confirmedCount - deliveredCount,
-      revenue: confirmedRevenue - deliveredRevenue,
+      count: Math.max(0, confirmedCount - deliveredCount),
+      revenue: Math.max(0, confirmedRevenue - deliveredRevenue),
       color: "#6366f1",
     },
     {
