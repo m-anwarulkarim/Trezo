@@ -596,7 +596,12 @@ function FoilBagLanding() {
       <FoilBagFaq faqs={faqs} phone={phone} waHref={waHref} />
 
       {/* Developer Footer */}
-      <LpDeveloperFooter />
+      <div className="pb-32 md:pb-28 text-center text-xs">
+        <Logo size={34} textClassName="text-lg text-slate-800" className="mb-3" />
+        <div className="mb-2" />
+        <LpDeveloperFooter />
+      </div>
+
 
       {/* Sticky Bottom Bar on Mobile */}
       <FoilBagStickyCta
