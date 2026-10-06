@@ -79,7 +79,7 @@ export function PathaoApiDialog({
   const settingsQuery = useQuery({
     queryKey: ["pathao-settings"],
     enabled: open,
-    staleTime: 10 * 60 * 1000, // 10 minutes cache
+    staleTime: 10 * 60 * 1000,
     queryFn: async () => await loadSettings({ data: undefined }),
   });
 
@@ -90,6 +90,8 @@ export function PathaoApiDialog({
     for (const key of KEYS) next[key] = saved[key] ?? "";
     if (!next.pathao_base_url) next.pathao_base_url = PRODUCTION_URL;
     if (!next.pathao_default_item_weight) next.pathao_default_item_weight = "0.5";
+    if (!next.pathao_default_city_id) next.pathao_default_city_id = "1";
+    if (!next.pathao_default_zone_id) next.pathao_default_zone_id = "1";
     setForm(next);
   }, [settingsQuery.data]);
 
@@ -104,7 +106,7 @@ export function PathaoApiDialog({
   const citiesQuery = useQuery({
     queryKey: ["pathao-cities"],
     enabled: open && savedHasCreds,
-    staleTime: 30 * 60 * 1000, // 30 minutes cache
+    staleTime: 30 * 60 * 1000,
     queryFn: async () => await loadCities({ data: undefined }),
   });
 
@@ -127,22 +129,34 @@ export function PathaoApiDialog({
   const update = (key: keyof Form, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
+  const prepareFormForSave = (): Form => {
+    const next = { ...form };
+    if (!next.pathao_base_url) next.pathao_base_url = PRODUCTION_URL;
+    if (!next.pathao_default_item_weight) next.pathao_default_item_weight = "0.5";
+    if (!next.pathao_default_city_id) next.pathao_default_city_id = "1";
+    if (!next.pathao_default_zone_id) next.pathao_default_zone_id = "1";
+    return next;
+  };
+
   const saveMutation = useMutation({
-    mutationFn: async () => await saveSettings({ data: { settings: form } }),
+    mutationFn: async () => {
+      const payload = prepareFormForSave();
+      return await saveSettings({ data: { settings: payload } });
+    },
     onSuccess: () => {
       toast.success("Pathao সেটিংস সেভ হয়েছে।");
       void queryClient.invalidateQueries({ queryKey: ["pathao-settings"] });
       void queryClient.invalidateQueries({ queryKey: ["pathao-setup"] });
       void queryClient.invalidateQueries({ queryKey: ["pathao-cities"] });
     },
-    onError: (error: Error) => toast.error(bnError(error, "সেটিংস সেভ করা যায়নি।")),
+    onError: (error: Error) => toast.error(error.message || bnError(error, "সেটিংস সেভ করা যায়নি।")),
   });
 
   const testMutation = useMutation({
     mutationFn: async () => {
-      // Auto-save form before testing so test uses current credentials
       if (hasCreds) {
-        await saveSettings({ data: { settings: form } });
+        const payload = prepareFormForSave();
+        await saveSettings({ data: { settings: payload } });
       }
       return await testConnection({ data: undefined });
     },
@@ -152,7 +166,6 @@ export function PathaoApiDialog({
       setStores(result.stores ?? []);
       if (result.ok) {
         toast.success(result.message);
-        // Only one store? Select it automatically so nothing is left blank.
         const only = (result.stores ?? [])[0];
         if (result.stores?.length === 1 && only?.store_id && !form.pathao_store_id) {
           update("pathao_store_id", String(only.store_id));
@@ -161,18 +174,18 @@ export function PathaoApiDialog({
     },
     onError: (error: Error) => {
       setTestResult(bnError(error, "কানেকশন যাচাই করা যায়নি।"));
-      toast.error(bnError(error, "কানেকশন যাচাই করা যায়নি।"));
+      toast.error(error.message || bnError(error, "কানেকশন যাচাই করা যায়নি।"));
     },
   });
 
   const field = (
     key: keyof Form,
     label: string,
-    opts?: { type?: string; placeholder?: string },
+    opts?: { type?: string; placeholder?: string; required?: boolean },
   ) => (
     <div className="space-y-1.5">
-      <Label htmlFor={key} className="text-xs">
-        {label}
+      <Label htmlFor={key} className="text-xs font-semibold">
+        {label} {opts?.required && <span className="text-destructive">*</span>}
       </Label>
       <Input
         id={key}
@@ -197,7 +210,7 @@ export function PathaoApiDialog({
     onPick?: () => void,
   ) => (
     <div className="space-y-1.5">
-      <Label className="text-xs">{label}</Label>
+      <Label className="text-xs text-muted-foreground">{label} (ঐচ্ছিক)</Label>
       <Select
         value={form[key] || ""}
         disabled={disabled}
@@ -207,7 +220,7 @@ export function PathaoApiDialog({
         }}
       >
         <SelectTrigger className="h-9 text-sm">
-          <SelectValue placeholder={query.isFetching ? "লোড হচ্ছে..." : "বেছে নিন"} />
+          <SelectValue placeholder={query.isFetching ? "লোড হচ্ছে..." : "অটো / বেছে নিন"} />
         </SelectTrigger>
         <SelectContent>
           {(query.data?.places ?? []).map((p) => (
@@ -226,116 +239,123 @@ export function PathaoApiDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[88vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Truck className="h-5 w-5 text-primary" /> Pathao কুরিয়ার API
+          <DialogTitle className="flex items-center gap-2 text-base md:text-lg">
+            <Truck className="h-5 w-5 text-primary" /> Pathao কুরিয়ার API সেটিংস
             {settingsQuery.isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           </DialogTitle>
-          <DialogDescription>
-            Pathao মার্চেন্ট প্যানেল থেকে পাওয়া তথ্য এখানে দিন। ১) তথ্য দিয়ে সেভ করুন ২) “কানেকশন
-            টেস্ট” চাপুন ৩) স্টোর ও ডিফল্ট এলাকা বেছে আবার সেভ করুন।
+          <DialogDescription className="text-xs md:text-sm">
+            নিচের ৪টি তথ্য দিয়ে <strong>“কানেকশন টেস্ট”</strong> দিলেই আপনার স্টোর ও এপিআই কানেক্ট হয়ে যাবে।
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 pt-1">
-          <div className="space-y-1.5">
-            <Label htmlFor="pathao_base_url" className="text-xs">
-              Base URL
-            </Label>
-            <Input
-              id="pathao_base_url"
-              value={form.pathao_base_url}
-              placeholder={PRODUCTION_URL}
-              onChange={(e) => update("pathao_base_url", e.target.value)}
-              className="h-9 text-sm"
-            />
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => update("pathao_base_url", PRODUCTION_URL)}
-              >
-                Production
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => update("pathao_base_url", SANDBOX_URL)}
-              >
-                Sandbox
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              আসল অর্ডারের জন্য Production, পরীক্ষার জন্য Sandbox বেছে নিন।
-            </p>
-          </div>
+        <div className="space-y-4 pt-1">
+          {/* Step 1 */}
+          <div className="space-y-3 rounded-xl border p-3.5 bg-muted/20">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
+              ধাপ ১: মার্চেন্ট API তথ্য (Pathao Portal)
+            </h4>
 
-          {field("pathao_client_id", "Client ID (API Key)")}
-          {field("pathao_client_secret", "Client Secret", { type: "password" })}
-          {field("pathao_username", "Username")}
-          {field("pathao_password", "Password", { type: "password" })}
-
-          {stores.length > 0 ? (
             <div className="space-y-1.5">
-              <Label className="text-xs">স্টোর</Label>
-              <Select
-                value={form.pathao_store_id || ""}
-                onValueChange={(value) => update("pathao_store_id", value)}
-              >
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="স্টোর বেছে নিন" />
-                </SelectTrigger>
-                <SelectContent>
-                  {stores
-                    .filter((s) => !!s.store_id)
-                    .map((s) => (
-                      <SelectItem key={s.store_id} value={String(s.store_id)}>
-                        {s.store_name || `Store ${s.store_id}`}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="pathao_base_url" className="text-xs font-semibold">
+                পরিবেশ (Base URL)
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant={form.pathao_base_url !== SANDBOX_URL ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => update("pathao_base_url", PRODUCTION_URL)}
+                  className="h-8 text-xs"
+                >
+                  Production (আসল ডেলিভারি)
+                </Button>
+                <Button
+                  type="button"
+                  variant={form.pathao_base_url === SANDBOX_URL ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => update("pathao_base_url", SANDBOX_URL)}
+                  className="h-8 text-xs"
+                >
+                  Sandbox (টেস্টিং)
+                </Button>
+              </div>
             </div>
-          ) : (
-            field("pathao_store_id", "Store ID", { type: "number" })
-          )}
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            {placeSelect("pathao_default_city_id", "ডিফল্ট সিটি", citiesQuery, !savedHasCreds, () => {
-              update("pathao_default_zone_id", "");
-              update("pathao_default_area_id", "");
-            })}
-            {placeSelect(
-              "pathao_default_zone_id",
-              "ডিফল্ট জোন",
-              zonesQuery,
-              !form.pathao_default_city_id,
-              () => update("pathao_default_area_id", ""),
-            )}
-            {placeSelect(
-              "pathao_default_area_id",
-              "ডিফল্ট এরিয়া",
-              areasQuery,
-              !form.pathao_default_zone_id,
-            )}
+            <div className="grid gap-3 sm:grid-cols-2">
+              {field("pathao_client_id", "Client ID", { required: true, placeholder: "যেমন: X7axlvJayv" })}
+              {field("pathao_client_secret", "Client Secret", { type: "password", required: true })}
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {field("pathao_username", "Username (Email)", { required: true, placeholder: "পাঠাও মার্চেন্ট ইমেইল" })}
+              {field("pathao_password", "Password", { type: "password", required: true })}
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            ঠিকানা থেকে সিটি/জোন নিজে থেকেই খুঁজে নেওয়া হয়; না মিললে এই ডিফল্টগুলো ব্যবহার হবে।
-            {!savedHasCreds && " তালিকা দেখতে আগে API তথ্য সেভ করুন।"}
-          </p>
-          {citiesQuery.data && !citiesQuery.data.ok && (
-            <p className="text-xs text-destructive">{citiesQuery.data.message}</p>
-          )}
 
-          {field("pathao_default_item_weight", "ডিফল্ট ওজন (কেজি)", { placeholder: "0.5" })}
-          {field("pathao_default_note", "রাইডারের জন্য নোট", { placeholder: "যেমন: আগে ফোন দিন" })}
+          {/* Step 2 */}
+          <div className="space-y-3 rounded-xl border p-3.5 bg-muted/20">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              ধাপ ২: স্টোর ও ডিফল্ট কনফিগারেশন (অটোমেটিক)
+            </h4>
 
-          <div className="flex items-start justify-between gap-3 rounded-lg border bg-muted/30 p-3">
+            {stores.length > 0 ? (
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">স্টোর (Store)</Label>
+                <Select
+                  value={form.pathao_store_id || ""}
+                  onValueChange={(value) => update("pathao_store_id", value)}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="স্টোর বেছে নিন" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {stores
+                      .filter((s) => !!s.store_id)
+                      .map((s) => (
+                        <SelectItem key={s.store_id} value={String(s.store_id)}>
+                          {s.store_name || `Store ${s.store_id}`}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              field("pathao_store_id", "Store ID (কানেকশন টেস্ট দিলে অটো আসবে)", { type: "number", placeholder: "যেমন: 12345" })
+            )}
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {placeSelect("pathao_default_city_id", "ডিফল্ট সিটি", citiesQuery, !savedHasCreds, () => {
+                update("pathao_default_zone_id", "");
+                update("pathao_default_area_id", "");
+              })}
+              {placeSelect(
+                "pathao_default_zone_id",
+                "ডিফল্ট জোন",
+                zonesQuery,
+                !form.pathao_default_city_id,
+                () => update("pathao_default_area_id", ""),
+              )}
+              {placeSelect(
+                "pathao_default_area_id",
+                "ডিফল্ট এরিয়া",
+                areasQuery,
+                !form.pathao_default_zone_id,
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-normal">
+              💡 <strong>নোট:</strong> কাস্টমারের অর্ডার থেকে সিটি/জোন নিজেই সিস্টেম চিনে নেয়। ডিফল্ট এলাকা শুধু অসম্পূর্ণ ঠিকানার জন্য ব্যাকআপ হিসেবে থাকে।
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {field("pathao_default_item_weight", "ডিফল্ট ওজন (কেজি)", { placeholder: "0.5" })}
+              {field("pathao_default_note", "রাইডারের নোট", { placeholder: "যেমন: আগে ফোন দিন" })}
+            </div>
+          </div>
+
+          <div className="flex items-start justify-between gap-3 rounded-xl border bg-primary/5 p-3">
             <div className="space-y-0.5">
-              <Label className="text-sm">অটোমেটিক কুরিয়ার এন্ট্রি</Label>
+              <Label className="text-sm font-bold text-primary">অটোমেটিক কুরিয়ার এন্ট্রি</Label>
               <p className="text-xs text-muted-foreground">
-                চালু থাকলে কোনো অর্ডার “কনফার্ম” হলেই সেটি নিজে থেকেই Pathao-তে চলে যাবে।
+                চালু থাকলে কোনো অর্ডার “কনফার্ম” হওয়ামাত্রই সেটি নিজে থেকেই Pathao-তে চলে যাবে।
               </p>
             </div>
             <Switch
@@ -346,7 +366,7 @@ export function PathaoApiDialog({
 
           <div className="flex flex-wrap items-center gap-2 border-t pt-3">
             <Button
-              className="gap-1.5"
+              className="gap-1.5 min-w-[110px]"
               disabled={!canSave || saveMutation.isPending}
               onClick={() => saveMutation.mutate()}
             >
@@ -378,7 +398,7 @@ export function PathaoApiDialog({
           </div>
           {!canSave && (
             <p className="text-xs text-destructive">
-              Client ID, Secret, Username ও Password — চারটিই দিতে হবে।
+              * Client ID, Secret, Username ও Password — ৪টিই দেওয়া আবশ্যক।
             </p>
           )}
         </div>
