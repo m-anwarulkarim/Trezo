@@ -188,24 +188,87 @@ export function listAreas(zoneId: number) {
   return pathaoGetList(`/aladdin/api/v1/zones/${zoneId}/area-list`);
 }
 
+const LOCATION_BN_EN: Record<string, string> = {
+  // Cities / Districts
+  "ঢাকা": "dhaka",
+  "চট্টগ্রাম": "chattogram",
+  "চিটাগং": "chattogram",
+  "সিলেট": "sylhet",
+  "রাজশাহী": "rajshahi",
+  "খুলনা": "khulna",
+  "বরিশাল": "barishal",
+  "রংপুর": "rangpur",
+  "ময়মনসিংহ": "mymensingh",
+  "কুমিল্লা": "cumilla",
+  "বগুড়া": "bogra",
+  "গাজীপুর": "gazipur",
+  "নারায়ণগঞ্জ": "narayanganj",
+  "ফেনী": "feni",
+  "নোয়াখালী": "noakhali",
+  "যশোর": "jessore",
+  "দিনাজপুর": "dinajpur",
+  "পাবনা": "pabna",
+  "কুষ্টিয়া": "kushtia",
+  "টাঙ্গাইল": "tangail",
+  "ফরিদপুর": "faridpur",
+  "ব্রাহ্মণবাড়িয়া": "brahmanbaria",
+  "কক্সবাজার": "cox's bazar",
+  "কক্স বাজার": "cox's bazar",
+
+  // Dhaka Zones
+  "মিরপুর": "mirpur",
+  "উত্তরা": "uttara",
+  "ধানমন্ডি": "dhanmondi",
+  "গুলশান": "gulshan",
+  "বনানী": "banani",
+  "মোহাম্মদপুর": "mohammadpur",
+  "বাড্ডা": "badda",
+  "যাত্রাবাড়ী": "jatrabari",
+  "যাত্রাবাড়ি": "jatrabari",
+  "সাভার": "savar",
+  "গাবতলী": "gabtoli",
+  "ফার্মগেট": "farmgate",
+  "শাহবাগ": "shahbagh",
+  "মগবাজার": "moghbazar",
+  "মৌচাক": "mouchak",
+  "খিলগাঁও": "khilgaon",
+  "রামপুরা": "rampura",
+  "বাসাবো": "basabo",
+  "মালিবাগ": "malibagh",
+  "কাকরাইল": "kakrail",
+  "মতিঝিল": "motijheel",
+  "পল্টন": "paltan",
+  "শ্যামলী": "shyamoli",
+};
+
+function normalizeSearchText(text: string): string {
+  let lower = text.toLowerCase();
+  for (const [bnKey, enVal] of Object.entries(LOCATION_BN_EN)) {
+    if (lower.includes(bnKey)) {
+      lower += ` ${enVal}`;
+    }
+  }
+  return lower;
+}
+
 function matchPlace(places: PathaoPlace[], address: string): PathaoPlace | null {
-  const text = address.toLowerCase();
+  const normAddress = normalizeSearchText(address);
   const hits = places
-    .filter((p) => p.name && text.includes(p.name.toLowerCase()))
+    .filter((p) => p.name && normAddress.includes(p.name.toLowerCase()))
     .sort((a, b) => b.name.length - a.name.length);
   return hits[0] ?? null;
 }
 
 /**
  * Works out recipient_city / recipient_zone from the address text, falling back
- * to the saved defaults. Pathao rejects an order without a valid city + zone.
+ * to the saved defaults or Dhaka defaults. Pathao rejects an order without a valid city + zone.
  */
 async function resolveDestination(
   address: string,
   settings: PathaoSettings,
 ): Promise<{ city: number; zone: number; area: number | null; note: string }> {
-  const defCity = parseInt(settings["pathao_default_city_id"] || "0", 10) || 0;
-  const defZone = parseInt(settings["pathao_default_zone_id"] || "0", 10) || 0;
+  const defCity = parseInt(settings["pathao_default_city_id"] || "1", 10) || 1; // Default 1 = Dhaka
+  const defZone = parseInt(settings["pathao_default_zone_id"] || "1", 10) || 1; // Default 1 = Dhaka Metro
   const defArea = parseInt(settings["pathao_default_area_id"] || "0", 10) || 0;
 
   let city = defCity;
@@ -230,18 +293,18 @@ async function resolveDestination(
         } catch {
           area = 0;
         }
-      } else if (city !== defCity) {
-        // City matched but zone did not — keep the city and drop a stale default zone.
-        zone = 0;
+      } else {
+        // City matched but zone did not — pick first available zone for that city or default
+        zone = zones[0]?.id || defZone;
         area = 0;
-        note = `${cityHit.name} (জোন মেলেনি)`;
+        note = `${cityHit.name} (${zones[0]?.name || "ডিফল্ট জোন"})`;
       }
     }
   } catch {
     // Location lookup failed — fall back to defaults below.
   }
 
-  return { city, zone, area: area || null, note };
+  return { city: city || 1, zone: zone || 1, area: area || null, note };
 }
 
 const PATHAO_STATUS_MAP: Record<string, string> = {
@@ -316,9 +379,12 @@ export async function createPathaoOrder(orderId: string): Promise<PathaoEntryRes
   if (!phone) {
     return { success: false, error: `ফোন নম্বরটি সঠিক নয় (${order.phone || "খালি"})।` };
   }
-  const address = String(order.address ?? "").trim();
+  let address = String(order.address ?? "").trim();
+  if (!address) {
+    return { success: false, error: "ঠিকানা দেওয়া হয়নি।" };
+  }
   if (address.length < 10) {
-    return { success: false, error: "ঠিকানা কমপক্ষে ১০ অক্ষরের হতে হবে।" };
+    address = `${address}, Bangladesh`;
   }
 
   const list = (items ?? []).map((i) => ({
