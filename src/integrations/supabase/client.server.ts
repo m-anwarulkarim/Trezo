@@ -6,17 +6,40 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-function readEnvVar(name: string): string {
-  if (process.env[name]) return process.env[name]!;
+let _cachedEnv: Record<string, string> | null = null;
+
+function getEnvMap(): Record<string, string> {
+  if (_cachedEnv) return _cachedEnv;
+  _cachedEnv = {};
   try {
     const envPath = path.resolve(process.cwd(), '.env');
     if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, 'utf-8');
-      const match = content.match(new RegExp(`^${name}=["']?([^"'\r\n]+)["']?`, 'm'));
-      if (match && match[1]) return match[1];
+      const lines = fs.readFileSync(envPath, 'utf-8').split(/\r?\n/);
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const eqIdx = trimmed.indexOf('=');
+        if (eqIdx > 0) {
+          const key = trimmed.slice(0, eqIdx).trim();
+          let val = trimmed.slice(eqIdx + 1).trim();
+          if (
+            (val.startsWith('"') && val.endsWith('"')) ||
+            (val.startsWith("'") && val.endsWith("'"))
+          ) {
+            val = val.slice(1, -1);
+          }
+          _cachedEnv[key] = val;
+        }
+      }
     }
   } catch {}
-  return '';
+  return _cachedEnv;
+}
+
+function readEnvVar(name: string): string {
+  if (process.env[name]) return process.env[name]!;
+  const envMap = getEnvMap();
+  return envMap[name] || '';
 }
 
 function isNewSupabaseApiKey(value: string): boolean {
@@ -54,6 +77,10 @@ function createSupabaseAdminClient() {
     readEnvVar('SUPABASE_SECRET_KEY') ||
     readEnvVar('SUPABASE_KEY') ||
     readEnvVar('VITE_SUPABASE_PUBLISHABLE_KEY');
+
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('Supabase service role key is required for server operations.');
+  }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     global: {
