@@ -62,6 +62,12 @@ export async function savePathaoSettings(settings: Record<string, string>) {
   if (error) throw new Error(error.message);
 }
 
+export async function clearPathaoSettings() {
+  const db = await admin();
+  const { error } = await db.from("app_settings").delete().like("key", "pathao_%");
+  if (error) throw new Error(error.message);
+}
+
 export function formatPathaoError(data: unknown): string {
   if (!data) return "Pathao থেকে কোনো উত্তর পাওয়া যায়নি।";
   if (typeof data === "string") return data;

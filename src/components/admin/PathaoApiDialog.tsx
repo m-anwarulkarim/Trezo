@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, PlugZap, Save, Truck } from "lucide-react";
+import { Loader2, PlugZap, Save, Trash2, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -25,6 +25,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { bnError } from "@/lib/bn-errors";
 import {
+  clearPathaoSettingsFn,
   getPathaoAreas,
   getPathaoCities,
   getPathaoSettings,
@@ -178,6 +179,29 @@ export function PathaoApiDialog({
       setTestResult(msg);
       toast.error(msg);
     },
+  });
+
+  const clearSettings = useServerFn(clearPathaoSettingsFn);
+
+  const clearMutation = useMutation({
+    mutationFn: async () => {
+      return await clearSettings({ data: undefined });
+    },
+    onSuccess: () => {
+      toast.success("Pathao API তথ্য সম্পূর্ণ ক্লিয়ার করা হয়েছে।");
+      const cleared = { ...EMPTY } as Form;
+      cleared.pathao_base_url = PRODUCTION_URL;
+      cleared.pathao_default_item_weight = "0.5";
+      cleared.pathao_default_city_id = "1";
+      cleared.pathao_default_zone_id = "1";
+      setForm(cleared);
+      setStores([]);
+      setTestResult(null);
+      void queryClient.invalidateQueries({ queryKey: ["pathao-settings"] });
+      void queryClient.invalidateQueries({ queryKey: ["pathao-setup"] });
+      void queryClient.invalidateQueries({ queryKey: ["pathao-cities"] });
+    },
+    onError: (error: Error) => toast.error(bnError(error, "তথ্য ক্লিয়ার করা যায়নি।")),
   });
 
   const field = (
@@ -391,6 +415,23 @@ export function PathaoApiDialog({
                 <PlugZap className="h-4 w-4" />
               )}
               কানেকশন টেস্ট
+            </Button>
+            <Button
+              variant="outline"
+              className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
+              disabled={clearMutation.isPending}
+              onClick={() => {
+                if (window.confirm("আপনি কি নিশ্চিত যে সংরক্ষিত সকল Pathao API তথ্য মুছে ফেলতে চান?")) {
+                  clearMutation.mutate();
+                }
+              }}
+            >
+              {clearMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4 text-destructive" />
+              )}
+              ক্লিয়ার করুন
             </Button>
             {testResult && (
               <Badge variant="outline" className="ml-auto max-w-full truncate text-[11px]">

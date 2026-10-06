@@ -40,6 +40,15 @@ export const savePathaoSettingsFn = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const clearPathaoSettingsFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { clearPathaoSettings } = await import("./pathao.server");
+    await clearPathaoSettings();
+    return { ok: true };
+  });
+
 export const testPathaoConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
