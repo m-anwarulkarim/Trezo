@@ -41,7 +41,7 @@ export async function savePathaoSettings(settings: Record<string, string>) {
   const db = await admin();
   const rows = Object.entries(settings)
     .filter(([key]) => (PATHAO_SETTING_KEYS as readonly string[]).includes(key))
-    .map(([key, value]) => ({ key, value: String(value ?? ""), updated_at: new Date().toISOString() }));
+    .map(([key, value]) => ({ key, value: String(value ?? "").trim(), updated_at: new Date().toISOString() }));
 
   // Credentials changed → drop the cached access token.
   const credKeys = [
@@ -101,7 +101,7 @@ function buildItemDescription(items: { product_name: string; quantity: number }[
 export async function getAccessToken(
   settings: PathaoSettings,
 ): Promise<{ token: string; baseUrl: string; storeId: string }> {
-  const baseUrl = settings["pathao_base_url"] || PATHAO_PRODUCTION_URL;
+  const baseUrl = (settings["pathao_base_url"] || PATHAO_PRODUCTION_URL).trim().replace(/\/+$/, "");
   const storeId = settings["pathao_store_id"] || "";
   const cachedToken = settings["pathao_access_token"] || "";
   const cachedExpiry = parseInt(settings["pathao_token_expiry"] || "0", 10);
@@ -144,48 +144,65 @@ export async function getAccessToken(
   return { token: String(data.access_token), baseUrl, storeId };
 }
 
-export async function listStores(): Promise<{ success: boolean; message: string; stores: unknown[]; storeId: string }> {
-  const settings = await loadPathaoSettings();
+export async function listStores(
+  customSettings?: PathaoSettings,
+): Promise<{ success: boolean; message: string; stores: unknown[]; storeId: string }> {
+  const settings = customSettings ?? (await loadPathaoSettings());
   const { token, baseUrl, storeId } = await getAccessToken(settings);
   const res = await fetch(`${baseUrl}/aladdin/api/v1/stores`, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
   });
   const data = (await res.json().catch(() => ({}))) as { data?: { data?: unknown[] } };
+  const storesList = Array.isArray(data?.data?.data)
+    ? data.data.data
+    : Array.isArray(data?.data)
+    ? data.data
+    : [];
+
   return {
     success: res.ok,
     message: res.ok ? "Pathao কানেকশন সফল হয়েছে।" : formatPathaoError(data),
-    stores: data?.data?.data ?? [],
+    stores: storesList,
     storeId,
   };
 }
 
 export type PathaoPlace = { id: number; name: string };
 
-async function pathaoGetList(path: string): Promise<PathaoPlace[]> {
-  const settings = await loadPathaoSettings();
+async function pathaoGetList(path: string, customSettings?: PathaoSettings): Promise<PathaoPlace[]> {
+  const settings = customSettings ?? (await loadPathaoSettings());
   const { token, baseUrl } = await getAccessToken(settings);
-  const res = await fetch(`${baseUrl}${path}`, {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  const res = await fetch(`${baseUrl}${cleanPath}`, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
   });
   const json = (await res.json().catch(() => ({}))) as { data?: { data?: Record<string, unknown>[] } };
   if (!res.ok) throw new Error(formatPathaoError(json));
-  return (json?.data?.data ?? []).map((row) => ({
-    id: Number(row["city_id"] ?? row["zone_id"] ?? row["area_id"] ?? 0),
-    name: String(row["city_name"] ?? row["zone_name"] ?? row["area_name"] ?? ""),
-  })).filter((p) => p.id > 0);
+  const rawList = Array.isArray(json?.data?.data)
+    ? json.data.data
+    : Array.isArray(json?.data)
+    ? json.data
+    : [];
+
+  return rawList
+    .map((row) => ({
+      id: Number(row["city_id"] ?? row["zone_id"] ?? row["area_id"] ?? row["id"] ?? 0),
+      name: String(row["city_name"] ?? row["zone_name"] ?? row["area_name"] ?? row["name"] ?? ""),
+    }))
+    .filter((p) => p.id > 0);
 }
 
 /** City list (Pathao "cities" = districts). */
-export function listCities() {
-  return pathaoGetList("/aladdin/api/v1/city-list");
+export function listCities(customSettings?: PathaoSettings) {
+  return pathaoGetList("/aladdin/api/v1/city-list", customSettings);
 }
 
-export function listZones(cityId: number) {
-  return pathaoGetList(`/aladdin/api/v1/cities/${cityId}/zone-list`);
+export function listZones(cityId: number, customSettings?: PathaoSettings) {
+  return pathaoGetList(`/aladdin/api/v1/cities/${cityId}/zone-list`, customSettings);
 }
 
-export function listAreas(zoneId: number) {
-  return pathaoGetList(`/aladdin/api/v1/zones/${zoneId}/area-list`);
+export function listAreas(zoneId: number, customSettings?: PathaoSettings) {
+  return pathaoGetList(`/aladdin/api/v1/zones/${zoneId}/area-list`, customSettings);
 }
 
 const LOCATION_BN_EN: Record<string, string> = {
@@ -277,24 +294,23 @@ async function resolveDestination(
   let note = "ডিফল্ট এলাকা ব্যবহার হয়েছে";
 
   try {
-    const cities = await listCities();
+    const cities = await listCities(settings);
     const cityHit = matchPlace(cities, address);
     if (cityHit) {
       city = cityHit.id;
-      const zones = await listZones(cityHit.id);
+      const zones = await listZones(cityHit.id, settings);
       const zoneHit = matchPlace(zones, address);
       if (zoneHit) {
         zone = zoneHit.id;
         note = `${cityHit.name} / ${zoneHit.name}`;
         try {
-          const areas = await listAreas(zoneHit.id);
+          const areas = await listAreas(zoneHit.id, settings);
           const areaHit = matchPlace(areas, address);
           area = areaHit ? areaHit.id : 0;
         } catch {
           area = 0;
         }
       } else {
-        // City matched but zone did not — pick first available zone for that city or default
         zone = zones[0]?.id || defZone;
         area = 0;
         note = `${cityHit.name} (${zones[0]?.name || "ডিফল্ট জোন"})`;
@@ -338,7 +354,8 @@ export async function fetchPathaoOrderInfo(
   token: string,
   consignmentId: string,
 ): Promise<{ order_status?: string } | null> {
-  const res = await fetch(`${baseUrl}/aladdin/api/v1/orders/${consignmentId}/info`, {
+  const cleanBase = baseUrl.trim().replace(/\/+$/, "");
+  const res = await fetch(`${cleanBase}/aladdin/api/v1/orders/${consignmentId}/info`, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
   });
   if (!res.ok) return null;
@@ -358,7 +375,7 @@ export async function createPathaoOrder(orderId: string): Promise<PathaoEntryRes
   const settings = await loadPathaoSettings();
   const { token, baseUrl, storeId } = await getAccessToken(settings);
   if (!storeId) {
-    return { success: false, error: "Pathao Store ID সেট করা নেই — কুরিয়ার সেটিংসে গিয়ে দিন।" };
+    return { success: false, error: "Pathao Store ID সেট করা নেই — কুরিয়ার সেটিংসে গিয়ে স্টোর বেছে সেভ দিন।" };
   }
 
   const { data: order } = await db
