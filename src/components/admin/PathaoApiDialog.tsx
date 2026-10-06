@@ -149,7 +149,7 @@ export function PathaoApiDialog({
       void queryClient.invalidateQueries({ queryKey: ["pathao-setup"] });
       void queryClient.invalidateQueries({ queryKey: ["pathao-cities"] });
     },
-    onError: (error: Error) => toast.error(error.message || bnError(error, "সেটিংস সেভ করা যায়নি।")),
+    onError: (error: Error) => toast.error(bnError(error, "সেটিংস সেভ করা যায়নি।")),
   });
 
   const testMutation = useMutation({
@@ -162,19 +162,21 @@ export function PathaoApiDialog({
     },
     onSuccess: (result) => {
       const extra = result.storeCount ? ` — ${result.storeCount} টি স্টোর পাওয়া গেছে` : "";
-      setTestResult(result.message + extra);
+      const msg = bnError(result.message, result.message);
+      setTestResult(msg + extra);
       setStores(result.stores ?? []);
       if (result.ok) {
-        toast.success(result.message);
+        toast.success(msg);
         const only = (result.stores ?? [])[0];
         if (result.stores?.length === 1 && only?.store_id && !form.pathao_store_id) {
           update("pathao_store_id", String(only.store_id));
         }
-      } else toast.error(result.message);
+      } else toast.error(msg);
     },
     onError: (error: Error) => {
-      setTestResult(bnError(error, "কানেকশন যাচাই করা যায়নি।"));
-      toast.error(error.message || bnError(error, "কানেকশন যাচাই করা যায়নি।"));
+      const msg = bnError(error, "কানেকশন যাচাই করা যায়নি।");
+      setTestResult(msg);
+      toast.error(msg);
     },
   });
 

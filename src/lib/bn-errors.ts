@@ -5,6 +5,33 @@
 
 type Rule = { match: RegExp; message: string };
 
+const PATHAO_RULES: Rule[] = [
+  {
+    match: /credentials were incorrect|invalid credentials|invalid client|client_id|client_secret/i,
+    message: "পাঠাও API তথ্য (Client ID, Secret, Username বা Password) সঠিক নয়। পোর্টাল থেকে মিলিয়ে দেখে আবার চেষ্টা করুন।",
+  },
+  {
+    match: /store_id is required|invalid store_id|store_id|store id|store not found/i,
+    message: "পাঠাও Store ID নির্বাচন করা হয়নি। সেটিংসে গিয়ে স্টোর বেছে নিয়ে সেভ দিন।",
+  },
+  {
+    match: /recipient_phone|phone number|invalid phone/i,
+    message: "কাস্টমারের ফোন নম্বরটি সঠিক নয় (যেমন: 01712345678)।",
+  },
+  {
+    match: /recipient_address|short address|address/i,
+    message: "কাস্টমারের ঠিকানা অন্তত ১০ অক্ষরের হতে হবে।",
+  },
+  {
+    match: /recipient_city|recipient_zone|city_id|zone_id/i,
+    message: "ঠিকানা থেকে পাঠাও সিটি বা জোন পাওয়া যায়নি। সেটিংসে ডিফল্ট সিটি ও জোন বেছে দিন।",
+  },
+  {
+    match: /amount_to_collect|price|total_amount/i,
+    message: "অর্ডারের ক্যাশ-অন-ডেলিভারি টাকার অংকে সমস্যা আছে।",
+  },
+];
+
 const AUTH_RULES: Rule[] = [
   {
     match: /invalid login credentials|invalid_credentials/i,
@@ -37,9 +64,14 @@ const AUTH_RULES: Rule[] = [
 ];
 
 const COMMON_RULES: Rule[] = [
+  ...PATHAO_RULES,
   {
-    match: /failed to fetch|network|networkerror|offline|timeout|timed out/i,
-    message: "ইন্টারনেট সংযোগে সমস্যা হচ্ছে। কানেকশন দেখে আবার চেষ্টা করুন।",
+    match: /missing supabase environment|supabase_url|supabase_publishable_key/i,
+    message: "ডেটাবেজ এনভায়রনমেন্ট ভেরিয়েবল সেট করা নেই। দয়া করে .env ফাইলটি পরীক্ষা করুন।",
+  },
+  {
+    match: /failed to fetch|network|networkerror|offline|timeout|timed out|econnrefused|enotfound/i,
+    message: "ইন্টারনেট বা সার্ভার সংযোগে সমস্যা হচ্ছে। কানেকশন দেখে আবার চেষ্টা করুন।",
   },
   {
     match: /row-level security|permission denied|not authorized|unauthorized|forbidden|42501/i,
@@ -56,6 +88,10 @@ const COMMON_RULES: Rule[] = [
   {
     match: /foreign key|23503/i,
     message: "সম্পর্কিত তথ্য খুঁজে পাওয়া যায়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।",
+  },
+  {
+    match: /token expired|jwt expired/i,
+    message: "লগইনের মেয়াদ শেষ হয়ে গেছে। দয়া করে পেজ রিফ্রেশ করে আবার লগইন করুন।",
   },
 ];
 
@@ -79,13 +115,23 @@ export function bnError(
 ): string {
   const text = rawText(err);
   if (!text) return fallback;
-  for (const rule of [...COMMON_RULES]) if (rule.match.test(text)) return rule.message;
+
+  // If the error message ALREADY contains Bengali text, return it directly!
+  if (/[\u0980-\u09FF]/.test(text)) {
+    return text;
+  }
+
+  for (const rule of COMMON_RULES) {
+    if (rule.match.test(text)) return rule.message;
+  }
+
   return fallback;
 }
 
 /** লগইন/সাইনআপের এররকে বাংলায় রূপ দেয়। */
 export function bnAuthError(err: unknown): string {
   const text = rawText(err);
+  if (/[\u0980-\u09FF]/.test(text)) return text;
   for (const rule of [...AUTH_RULES, ...COMMON_RULES]) if (rule.match.test(text)) return rule.message;
   return "লগইন করা যাচ্ছে না। তথ্যগুলো আবার দেখে চেষ্টা করুন।";
 }
