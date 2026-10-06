@@ -1,12 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
+import { ShieldCheck } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { makeOrderId } from "@/lib/orders";
 import { bnOrderError } from "@/lib/bn-errors";
 import { getFbCookies, initMetaPixel, newEventId, pixelTrack } from "@/lib/pixel";
 import { trackFunnelEvent } from "@/lib/tracking.functions";
+import { detectTrafficSource } from "@/lib/traffic-source";
 import { Logo } from "@/components/trezo/Logo";
 import { LpDeveloperFooter } from "@/components/landing/LpDeveloperFooter";
 
@@ -82,6 +84,10 @@ function FoilBagLanding() {
   useReveal();
   const navigate = useNavigate();
   const sendFunnel = useServerFn(trackFunnelEvent);
+
+  useEffect(() => {
+    detectTrafficSource();
+  }, []);
 
   const formRef = useRef<HTMLDivElement>(null);
   const reviewRef = useRef<HTMLDivElement>(null);
@@ -377,7 +383,7 @@ function FoilBagLanding() {
         phone: mobile.replace(/\D/g, ""),
         address: address.trim(),
         status: "pending",
-        traffic_source: "website",
+        traffic_source: detectTrafficSource(),
         delivery_area: deliveryArea,
         delivery_charge: deliveryCharge,
         subtotal,
@@ -388,6 +394,7 @@ function FoilBagLanding() {
       await supabase.from("order_items").insert({
         order_id: rowId,
         product_name: `Aluminium ফয়েল জিপলক ব্যাগ — ${selectedTier.pieces} পিস প্যাক`,
+        product_image: "/images/foil-hero-v2.webp",
         quantity: Math.max(1, quantity),
         unit_price: selectedTier.price,
       });
@@ -489,8 +496,9 @@ function FoilBagLanding() {
               <span className="text-[12px] sm:text-[14px] font-black text-slate-900 tracking-wide truncate max-w-[160px] xs:max-w-[240px] sm:max-w-none">
                 অ্যালুমিনিয়াম ফয়েল ব্যাগ
               </span>
-              <span className="text-[10.5px] sm:text-[12px] font-extrabold text-blue-800 tracking-tight whitespace-nowrap mt-0.5">
-                🛡️ এয়ারটাইট · লিকপ্রুফ · রিইউজেবল
+              <span className="text-[10.5px] sm:text-[12px] font-extrabold text-blue-800 tracking-tight whitespace-nowrap mt-0.5 inline-flex items-center gap-1">
+                <ShieldCheck className="h-3.5 w-3.5 text-blue-600 inline" />
+                <span>এয়ারটাইট · লিকপ্রুফ · রিইউজেবল</span>
               </span>
             </div>
           </div>

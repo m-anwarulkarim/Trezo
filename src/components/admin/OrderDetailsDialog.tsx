@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { statusMeta, type OrderItemRow, type OrderRow } from "@/lib/orders";
+import { getProductImage, statusMeta, type OrderItemRow, type OrderRow } from "@/lib/orders";
 
 type Props = {
   order: OrderRow | null;
@@ -128,17 +128,11 @@ export function OrderDetailsDialog({ order, onClose }: Props) {
                       key={item.id}
                       className="flex items-center gap-3 rounded-lg bg-muted/40 p-2"
                     >
-                      {item.product_image ? (
-                        <img
-                          src={item.product_image}
-                          alt={item.product_name}
-                          className="h-10 w-10 rounded object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded bg-muted">
-                          <Package className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                      )}
+                      <img
+                        src={getProductImage(item)}
+                        alt={item.product_name}
+                        className="h-10 w-10 rounded border object-cover bg-white shrink-0"
+                      />
                       <div className="min-w-0 flex-1">
                         <p className="line-clamp-1 text-sm font-medium">
                           {item.product_name}

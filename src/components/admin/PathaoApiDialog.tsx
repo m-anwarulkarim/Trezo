@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, PlugZap, Save, Trash2, Truck } from "lucide-react";
+import { Info, Loader2, PlugZap, Save, Trash2, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -367,8 +367,9 @@ export function PathaoApiDialog({
                 !form.pathao_default_zone_id,
               )}
             </div>
-            <p className="text-[11px] text-muted-foreground leading-normal">
-              💡 <strong>নোট:</strong> কাস্টমারের অর্ডার থেকে সিটি/জোন নিজেই সিস্টেম চিনে নেয়। ডিফল্ট এলাকা শুধু অসম্পূর্ণ ঠিকানার জন্য ব্যাকআপ হিসেবে থাকে।
+            <p className="text-[11px] text-muted-foreground leading-normal flex items-center gap-1">
+              <Info className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+              <span><strong>নোট:</strong> কাস্টমারের অর্ডার থেকে সিটি/জোন নিজেই সিস্টেম চিনে নেয়। ডিফল্ট এলাকা শুধু অসম্পূর্ণ ঠিকানার জন্য ব্যাকআপ হিসেবে থাকে।</span>
             </p>
 
             <div className="grid gap-3 sm:grid-cols-2">

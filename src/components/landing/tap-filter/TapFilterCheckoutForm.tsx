@@ -89,7 +89,7 @@ export function TapFilterCheckoutForm({
                 <PartyPopper className="w-6 h-6" />
                 <h3 className="text-2xl md:text-3xl font-extrabold">ধন্যবাদ!</h3>
               </div>
-              <p className="text-lg font-semibold text-slate-800">আপনার অর্ডার পাওয়া গেছে ✅</p>
+              <p className="text-lg font-semibold text-slate-800">আপনার অর্ডার পাওয়া গেছে</p>
               <p className="mt-2 text-sm text-slate-600">
                 অর্ডার আইডি: <span className="font-mono font-bold text-primary">{success.orderId}</span>
               </p>

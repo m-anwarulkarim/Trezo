@@ -81,7 +81,7 @@ function CourierSettingsPage() {
             {setup.isFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           </CardTitle>
           <CardDescription>
-            নিচের সবগুলো ✓ হলে কুরিয়ার এন্ট্রি ঠিকভাবে কাজ করবে।
+            নিচের সবগুলো তথ্য সঠিক থাকলে কুরিয়ার এন্ট্রি ঠিকভাবে কাজ করবে।
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">

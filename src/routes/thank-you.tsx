@@ -81,7 +81,7 @@ function ThankYouPage() {
         </div>
 
         <h1 className="text-3xl font-extrabold text-emerald-600">ধন্যবাদ!</h1>
-        <p className="mt-2 text-lg font-semibold">আপনার অর্ডারটি আমরা পেয়েছি ✅</p>
+        <p className="mt-2 text-lg font-semibold">আপনার অর্ডারটি আমরা পেয়েছি</p>
 
         {order && (
           <div className="mt-5 rounded-2xl bg-sky-50 px-4 py-3">

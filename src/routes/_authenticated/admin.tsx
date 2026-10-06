@@ -2,15 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import {
   Activity,
-  CalendarClock,
   Layout,
+  LayoutDashboard,
   ListOrdered,
   LogOut,
   PlusCircle,
   ShoppingCart,
   Trash2,
   Truck,
-
 } from "lucide-react";
 import { useEffect } from "react";
 
@@ -92,6 +91,12 @@ function AdminLayout() {
 
   const orderItems = [
     {
+      to: "/admin",
+      label: "ওভারভিউ",
+      icon: LayoutDashboard,
+      badge: undefined,
+    },
+    {
       to: "/admin/orders/web",
       label: "অর্ডারসমূহ",
       icon: ShoppingCart,
@@ -102,12 +107,6 @@ function AdminLayout() {
       label: "অর্ডার লিস্ট",
       icon: ListOrdered,
       badge: counts?.confirmed,
-    },
-    {
-      to: "/admin/orders/pre",
-      label: "প্রি-অর্ডার",
-      icon: CalendarClock,
-      badge: counts?.preToday,
     },
     {
       to: "/admin/orders/create",

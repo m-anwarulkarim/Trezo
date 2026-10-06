@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { format, formatDistanceToNow } from "date-fns";
 import { bn } from "date-fns/locale";
 import {
+  Calendar,
   ChevronLeft,
   ChevronRight,
   Globe,
@@ -72,6 +73,7 @@ import {
   WEB_STATUS_WITH_CONFIRM,
   getDateRangeISO,
   getDateRangeToISO,
+  getProductImage,
   statusMeta,
   type DateRangePreset,
   type OrderItemRow,
@@ -520,17 +522,11 @@ function WebOrders() {
                                         onClick={() => setSelectedOrder(order)}
                                         className="h-8 w-8 shrink-0 rounded"
                                       >
-                                        {item.product_image ? (
-                                          <img
-                                            src={item.product_image}
-                                            alt={item.product_name}
-                                            className="h-8 w-8 rounded border object-cover"
-                                          />
-                                        ) : (
-                                          <div className="flex h-8 w-8 items-center justify-center rounded border bg-muted">
-                                            <Package className="h-3 w-3 text-muted-foreground" />
-                                          </div>
-                                        )}
+                                        <img
+                                          src={getProductImage(item)}
+                                          alt={item.product_name}
+                                          className="h-8 w-8 rounded border object-cover bg-white"
+                                        />
                                       </button>
                                     </TooltipTrigger>
                                     <TooltipContent className="text-xs">
@@ -608,7 +604,10 @@ function WebOrders() {
                               </Select>
                               {order.pre_date && (
                                 <p className="mt-1 text-[10px] text-primary">
-                                  📅 {format(new Date(order.pre_date), "dd/MM/yyyy")}
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="h-3 w-3 inline shrink-0" />
+                                    {format(new Date(order.pre_date), "dd/MM/yyyy")}
+                                  </span>
                                 </p>
                               )}
                             </TableCell>

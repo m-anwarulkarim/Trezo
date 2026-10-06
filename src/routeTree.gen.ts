@@ -22,7 +22,6 @@ import { Route as AuthenticatedAdminOrdersIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminOrdersCreateRouteImport } from './routes/_authenticated/admin.orders.create'
 import { Route as AuthenticatedAdminOrdersDeletedRouteImport } from './routes/_authenticated/admin.orders.deleted'
 import { Route as AuthenticatedAdminOrdersListRouteImport } from './routes/_authenticated/admin.orders.list'
-import { Route as AuthenticatedAdminOrdersPreRouteImport } from './routes/_authenticated/admin.orders.pre'
 import { Route as AuthenticatedAdminOrdersWebRouteImport } from './routes/_authenticated/admin.orders.web'
 import { Route as AuthenticatedAdminSettingsCourierRouteImport } from './routes/_authenticated/admin.settings.courier'
 import { Route as AuthenticatedAdminSettingsTrackingRouteImport } from './routes/_authenticated/admin.settings.tracking'
@@ -96,12 +95,6 @@ const AuthenticatedAdminOrdersListRoute =
     path: '/orders/list',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminOrdersPreRoute =
-  AuthenticatedAdminOrdersPreRouteImport.update({
-    id: '/orders/pre',
-    path: '/orders/pre',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminOrdersWebRoute =
   AuthenticatedAdminOrdersWebRouteImport.update({
     id: '/orders/web',
@@ -133,7 +126,6 @@ export interface FileRoutesByFullPath {
   '/admin/orders/create': typeof AuthenticatedAdminOrdersCreateRoute
   '/admin/orders/deleted': typeof AuthenticatedAdminOrdersDeletedRoute
   '/admin/orders/list': typeof AuthenticatedAdminOrdersListRoute
-  '/admin/orders/pre': typeof AuthenticatedAdminOrdersPreRoute
   '/admin/orders/web': typeof AuthenticatedAdminOrdersWebRoute
   '/admin/settings/courier': typeof AuthenticatedAdminSettingsCourierRoute
   '/admin/settings/tracking': typeof AuthenticatedAdminSettingsTrackingRoute
@@ -150,7 +142,6 @@ export interface FileRoutesByTo {
   '/admin/orders/create': typeof AuthenticatedAdminOrdersCreateRoute
   '/admin/orders/deleted': typeof AuthenticatedAdminOrdersDeletedRoute
   '/admin/orders/list': typeof AuthenticatedAdminOrdersListRoute
-  '/admin/orders/pre': typeof AuthenticatedAdminOrdersPreRoute
   '/admin/orders/web': typeof AuthenticatedAdminOrdersWebRoute
   '/admin/settings/courier': typeof AuthenticatedAdminSettingsCourierRoute
   '/admin/settings/tracking': typeof AuthenticatedAdminSettingsTrackingRoute
@@ -170,7 +161,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/orders/create': typeof AuthenticatedAdminOrdersCreateRoute
   '/_authenticated/admin/orders/deleted': typeof AuthenticatedAdminOrdersDeletedRoute
   '/_authenticated/admin/orders/list': typeof AuthenticatedAdminOrdersListRoute
-  '/_authenticated/admin/orders/pre': typeof AuthenticatedAdminOrdersPreRoute
   '/_authenticated/admin/orders/web': typeof AuthenticatedAdminOrdersWebRoute
   '/_authenticated/admin/settings/courier': typeof AuthenticatedAdminSettingsCourierRoute
   '/_authenticated/admin/settings/tracking': typeof AuthenticatedAdminSettingsTrackingRoute
@@ -190,7 +180,6 @@ export interface FileRouteTypes {
     | '/admin/orders/create'
     | '/admin/orders/deleted'
     | '/admin/orders/list'
-    | '/admin/orders/pre'
     | '/admin/orders/web'
     | '/admin/settings/courier'
     | '/admin/settings/tracking'
@@ -207,7 +196,6 @@ export interface FileRouteTypes {
     | '/admin/orders/create'
     | '/admin/orders/deleted'
     | '/admin/orders/list'
-    | '/admin/orders/pre'
     | '/admin/orders/web'
     | '/admin/settings/courier'
     | '/admin/settings/tracking'
@@ -226,7 +214,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/orders/create'
     | '/_authenticated/admin/orders/deleted'
     | '/_authenticated/admin/orders/list'
-    | '/_authenticated/admin/orders/pre'
     | '/_authenticated/admin/orders/web'
     | '/_authenticated/admin/settings/courier'
     | '/_authenticated/admin/settings/tracking'
@@ -335,13 +322,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminOrdersListRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/orders/pre': {
-      id: '/_authenticated/admin/orders/pre'
-      path: '/orders/pre'
-      fullPath: '/admin/orders/pre'
-      preLoaderRoute: typeof AuthenticatedAdminOrdersPreRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/orders/web': {
       id: '/_authenticated/admin/orders/web'
       path: '/orders/web'
@@ -372,7 +352,6 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminOrdersCreateRoute: typeof AuthenticatedAdminOrdersCreateRoute
   AuthenticatedAdminOrdersDeletedRoute: typeof AuthenticatedAdminOrdersDeletedRoute
   AuthenticatedAdminOrdersListRoute: typeof AuthenticatedAdminOrdersListRoute
-  AuthenticatedAdminOrdersPreRoute: typeof AuthenticatedAdminOrdersPreRoute
   AuthenticatedAdminOrdersWebRoute: typeof AuthenticatedAdminOrdersWebRoute
   AuthenticatedAdminSettingsCourierRoute: typeof AuthenticatedAdminSettingsCourierRoute
   AuthenticatedAdminSettingsTrackingRoute: typeof AuthenticatedAdminSettingsTrackingRoute
@@ -385,7 +364,6 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminOrdersCreateRoute: AuthenticatedAdminOrdersCreateRoute,
   AuthenticatedAdminOrdersDeletedRoute: AuthenticatedAdminOrdersDeletedRoute,
   AuthenticatedAdminOrdersListRoute: AuthenticatedAdminOrdersListRoute,
-  AuthenticatedAdminOrdersPreRoute: AuthenticatedAdminOrdersPreRoute,
   AuthenticatedAdminOrdersWebRoute: AuthenticatedAdminOrdersWebRoute,
   AuthenticatedAdminSettingsCourierRoute:
     AuthenticatedAdminSettingsCourierRoute,

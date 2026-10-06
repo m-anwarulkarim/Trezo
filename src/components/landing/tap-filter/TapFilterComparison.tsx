@@ -1,4 +1,4 @@
-import { ArrowRight, BadgeCheck, CheckCircle2, Flame, Frown, ShieldCheck, Smile, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeCheck, Check, CheckCircle2, Flame, Frown, ShieldCheck, Smile, Sparkles } from "lucide-react";
 
 export function TapFilterComparison({
   imgBefore,
@@ -143,9 +143,18 @@ export function TapFilterComparison({
                   আমাদের।
                 </p>
                 <div className="mt-3 flex flex-wrap justify-center md:justify-start gap-2 text-[11px] font-bold">
-                  <span className="bg-white/20 backdrop-blur px-2.5 py-1 rounded-full">✓ ৭ দিন রিটার্ন</span>
-                  <span className="bg-white/20 backdrop-blur px-2.5 py-1 rounded-full">✓ ক্যাশ অন ডেলিভারি</span>
-                  <span className="bg-white/20 backdrop-blur px-2.5 py-1 rounded-full">✓ বিশ্বস্ত ব্র্যান্ড</span>
+                  <span className="bg-white/20 backdrop-blur px-2.5 py-1 rounded-full flex items-center gap-1">
+                    <Check className="h-3 w-3 inline shrink-0" />
+                    <span>৭ দিন রিটার্ন</span>
+                  </span>
+                  <span className="bg-white/20 backdrop-blur px-2.5 py-1 rounded-full flex items-center gap-1">
+                    <Check className="h-3 w-3 inline shrink-0" />
+                    <span>ক্যাশ অন ডেলিভারি</span>
+                  </span>
+                  <span className="bg-white/20 backdrop-blur px-2.5 py-1 rounded-full flex items-center gap-1">
+                    <Check className="h-3 w-3 inline shrink-0" />
+                    <span>বিশ্বস্ত ব্র্যান্ড</span>
+                  </span>
                 </div>
               </div>
             </div>

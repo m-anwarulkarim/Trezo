@@ -1,12 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
+import { Droplets } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { makeOrderId } from "@/lib/orders";
 import { bnOrderError } from "@/lib/bn-errors";
 import { getFbCookies, initMetaPixel, newEventId, pixelTrack } from "@/lib/pixel";
 import { trackFunnelEvent } from "@/lib/tracking.functions";
+import { detectTrafficSource } from "@/lib/traffic-source";
 import { Logo } from "@/components/trezo/Logo";
 import { LpDeveloperFooter } from "@/components/landing/LpDeveloperFooter";
 
@@ -80,6 +82,10 @@ function TapFilterLanding() {
 
   const navigate = useNavigate();
   const sendFunnel = useServerFn(trackFunnelEvent);
+
+  useEffect(() => {
+    detectTrafficSource();
+  }, []);
   const formRef = useRef<HTMLDivElement>(null);
   const tierScrollRef = useRef<HTMLDivElement>(null);
   const isAutoScrollingRef = useRef(false);
@@ -320,7 +326,7 @@ function TapFilterLanding() {
         phone: mobile.replace(/\D/g, ""),
         address: address.trim(),
         status: "pending",
-        traffic_source: "website",
+        traffic_source: detectTrafficSource(),
         delivery_area: deliveryArea,
         delivery_charge: deliveryCharge,
         subtotal,
@@ -331,6 +337,7 @@ function TapFilterLanding() {
       await supabase.from("order_items").insert({
         order_id: rowId,
         product_name: `Trezo ট্যাপ ফিল্টার — ${selectedTier.pieces} পিস প্যাকেজ`,
+        product_image: selectedTier.image || "/images/pack-50.webp",
         quantity: Math.max(1, quantity),
         unit_price: selectedTier.price,
       });
@@ -419,14 +426,25 @@ function TapFilterLanding() {
       `}</style>
 
       {/* BRAND BAR */}
-      <header className="sticky top-0 z-40 border-b border-primary/10 bg-white/85 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+      <header className="sticky top-0 z-40 border-b border-primary/10 bg-white/95 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-1 sm:gap-3">
           <Logo size={30} textClassName="text-xl text-primary-deep" />
+          <div className="flex flex-col items-center text-center justify-center min-w-0 flex-1 px-1">
+            <div className="inline-flex flex-col items-center bg-gradient-to-r from-blue-50 via-sky-50 to-blue-50 border border-blue-200/80 px-3 sm:px-4 py-1 rounded-xl shadow-xs">
+              <span className="text-[12px] sm:text-[14px] font-black text-slate-900 tracking-wide truncate max-w-[150px] xs:max-w-[240px] sm:max-w-none">
+                ওয়াটার ফসেট ট্যাপ ফিল্টার
+              </span>
+              <span className="text-[10.5px] sm:text-[12px] font-extrabold text-blue-800 tracking-tight whitespace-nowrap mt-0.5 inline-flex items-center gap-1">
+                <Droplets className="h-3.5 w-3.5 text-blue-600 inline" />
+                <span>১০০% বিশুদ্ধ ও জীবাণুমুক্ত পানি</span>
+              </span>
+            </div>
+          </div>
           <a
             href={`tel:${phone}`}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-deep"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-primary hover:text-primary-deep bg-blue-50/80 px-2.5 py-1.5 rounded-lg border border-blue-100 shrink-0"
           >
-            <Phone className="w-4 h-4" /> {phone}
+            <Phone className="w-4 h-4 text-primary" /> <span className="hidden xs:inline">{phone}</span>
           </a>
         </div>
       </header>

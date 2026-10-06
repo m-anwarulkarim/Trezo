@@ -76,6 +76,7 @@ import {
   STATUS_OPTIONS,
   getDateRangeISO,
   getDateRangeToISO,
+  getProductImage,
   statusMeta,
   type DateRangePreset,
   type OrderItemRow,
@@ -653,17 +654,11 @@ function OrderListPage() {
                                         onClick={() => setSelectedOrder(order)}
                                         className="h-8 w-8 shrink-0 rounded"
                                       >
-                                        {item.product_image ? (
-                                          <img
-                                            src={item.product_image}
-                                            alt={item.product_name}
-                                            className="h-8 w-8 rounded border object-cover"
-                                          />
-                                        ) : (
-                                          <div className="flex h-8 w-8 items-center justify-center rounded border bg-muted">
-                                            <Package className="h-3 w-3 text-muted-foreground" />
-                                          </div>
-                                        )}
+                                        <img
+                                          src={getProductImage(item)}
+                                          alt={item.product_name}
+                                          className="h-8 w-8 rounded border object-cover bg-white"
+                                        />
                                       </button>
                                     </TooltipTrigger>
                                     <TooltipContent className="text-xs">

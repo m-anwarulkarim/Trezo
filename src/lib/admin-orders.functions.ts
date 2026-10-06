@@ -98,6 +98,12 @@ export const createManualOrder = createServerFn({ method: "POST" })
     const { error: itemError } = await supabaseAdmin.from("order_items").insert({
       order_id: rowId,
       product_name: data.productName,
+      product_image:
+        data.productName.includes("ফয়েল") ||
+        data.productName.includes("Foil") ||
+        data.productName.includes("Aluminium")
+          ? "/images/foil-hero-v2.webp"
+          : "/images/pack-50.webp",
       quantity: data.quantity,
       unit_price: data.unitPrice,
     });

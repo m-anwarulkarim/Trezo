@@ -52,6 +52,15 @@ export type OrderItemRow = {
   unit_price: number;
 };
 
+export function getProductImage(item?: { product_image?: string | null; product_name?: string | null }): string {
+  if (item?.product_image) return item.product_image;
+  const name = item?.product_name?.toLowerCase() ?? "";
+  if (name.includes("ফয়েল") || name.includes("foil") || name.includes("aluminium") || name.includes("aluminum")) {
+    return "/images/foil-hero-v2.webp";
+  }
+  return "/images/pack-50.webp";
+}
+
 export type StatusOption = {
   value: string;
   labelBn: string;
