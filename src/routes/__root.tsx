@@ -96,6 +96,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "dns-prefetch", href: "https://connect.facebook.net" },
+      { rel: "preconnect", href: "https://connect.facebook.net", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://hypdmbssgrpkjziejyia.supabase.co" },
+      { rel: "preconnect", href: "https://hypdmbssgrpkjziejyia.supabase.co", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
