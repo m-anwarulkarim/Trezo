@@ -490,11 +490,11 @@ function FoilBagLanding2() {
         <div className="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-1 sm:gap-3">
           <Logo />
           <div className="flex flex-col items-center text-center justify-center min-w-0 flex-1 px-1">
-            <div className="inline-flex flex-col items-center bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border border-blue-200/80 px-2.5 sm:px-4 py-1 rounded-xl shadow-xs">
-              <span className="text-[11px] sm:text-[13px] font-black text-slate-900 tracking-wide truncate max-w-[140px] xs:max-w-[210px] sm:max-w-none">
+            <div className="inline-flex flex-col items-center bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border border-blue-200/80 px-3 sm:px-4 py-1 rounded-xl shadow-xs">
+              <span className="text-[12px] sm:text-[14px] font-black text-slate-900 tracking-wide truncate max-w-[160px] xs:max-w-[240px] sm:max-w-none">
                 অ্যালুমিনিয়াম ফয়েল ব্যাগ
               </span>
-              <span className="text-[8.5px] sm:text-[10px] font-bold text-blue-700 tracking-tight whitespace-nowrap">
+              <span className="text-[10.5px] sm:text-[12px] font-extrabold text-blue-800 tracking-tight whitespace-nowrap mt-0.5">
                 🛡️ এয়ারটাইট · লিকপ্রুফ · রিইউজেবল
               </span>
             </div>
