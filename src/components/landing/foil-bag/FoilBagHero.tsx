@@ -36,10 +36,15 @@ export function FoilBagHero({
       ))}
       <div className="relative max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
         <div data-reveal>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(59,130,246,.2)] bg-[rgba(59,130,246,.08)] px-3 py-1 text-xs font-semibold text-[#2563eb]">
-            <Sparkles className="w-3.5 h-3.5" /> প্রিমিয়াম কিচেন কালেকশন
-          </span>
-          <h1 className="mt-4 text-4xl md:text-6xl font-extrabold leading-[1.12]">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(59,130,246,.25)] bg-[rgba(59,130,246,.08)] px-3 py-1 text-xs font-bold text-[#2563eb]">
+              <Sparkles className="w-3.5 h-3.5 text-[#2563eb]" /> প্রিমিয়াম কিচেন কালেকশন
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-extrabold text-amber-800 shadow-sm">
+              🇨🇳 Made In China অরিজিনাল
+            </span>
+          </div>
+          <h1 className="mt-3 text-4xl md:text-6xl font-extrabold leading-[1.12]">
             অ্যালুমিনিয়াম ফয়েল <span className="fb-gold-text">জিপলক ব্যাগ</span>
           </h1>
           <p className="mt-4 text-lg md:text-xl text-[#334155]">
@@ -94,6 +99,10 @@ export function FoilBagHero({
             height={1000}
             decoding="sync"
           />
+
+          <div className="absolute top-4 right-4 fb-glass px-3.5 py-1.5 text-xs font-extrabold text-amber-800 bg-white/95 border border-amber-300 shadow-md rounded-full">
+            🇨🇳 Made In China (অরিজিনাল)
+          </div>
 
           <div className="absolute -bottom-4 left-4 fb-glass px-4 py-2 text-sm font-bold text-[#2563eb]">
             <Flame className="inline w-4 h-4 mr-1" /> ৪৫% পর্যন্ত ছাড়

@@ -1,8 +1,16 @@
 import { ArrowRight, CheckCircle2, Play } from "lucide-react";
 import { useState } from "react";
 
-export function FoilBagVideoSection({ scrollToForm }: { scrollToForm: () => void }) {
+export function FoilBagVideoSection({
+  scrollToForm,
+  videoId = "7zayAaTPLg8",
+}: {
+  scrollToForm: () => void;
+  videoId?: string;
+}) {
   const [videoOpen, setVideoOpen] = useState(false);
+  const thumbUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
 
   return (
     <section className="py-16 md:py-24 bg-white overflow-hidden">
@@ -17,7 +25,7 @@ export function FoilBagVideoSection({ scrollToForm }: { scrollToForm: () => void
                   onClick={() => setVideoOpen(true)}
                 >
                   <img
-                    src="https://i.ytimg.com/vi/7zayAaTPLg8/maxresdefault.jpg"
+                    src={thumbUrl}
                     alt="অ্যালুমিনিয়াম ফয়েল জিপলক ব্যাগ ভিডিও"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
@@ -30,7 +38,7 @@ export function FoilBagVideoSection({ scrollToForm }: { scrollToForm: () => void
                 </div>
               ) : (
                 <iframe
-                  src="https://www.youtube.com/embed/7zayAaTPLg8?autoplay=1&rel=0"
+                  src={embedUrl}
                   title="YouTube short player"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

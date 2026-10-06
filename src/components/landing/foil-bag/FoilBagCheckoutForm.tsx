@@ -56,9 +56,14 @@ export function FoilBagCheckoutForm({
     <section ref={formRef} className="py-16 md:py-20 scroll-mt-16">
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center" data-reveal>
-          <span className="inline-flex items-center gap-2 rounded-full bg-[rgba(59,130,246,.08)] border border-[rgba(59,130,246,.25)] px-3 py-1 text-xs font-bold text-[#2563eb]">
-            <Gift className="w-3.5 h-3.5 text-[#2563eb]" /> ক্যাশ অন ডেলিভারি
-          </span>
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[rgba(59,130,246,.08)] border border-[rgba(59,130,246,.25)] px-3 py-1 text-xs font-bold text-[#2563eb]">
+              <Gift className="w-3.5 h-3.5 text-[#2563eb]" /> ক্যাশ অন ডেলিভারি
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-xs font-extrabold text-amber-800 shadow-sm">
+              🇨🇳 Made In China অরিজিনাল
+            </span>
+          </div>
           <h2 className="mt-3 text-3xl md:text-4xl font-extrabold">
             অর্ডার <span className="fb-gold-text">ফর্ম</span>
           </h2>
@@ -125,57 +130,72 @@ export function FoilBagCheckoutForm({
             })}
           </div>
 
-          <div className="mt-5 grid gap-4">
+          <div className="mt-6 space-y-4 text-left">
             <div>
-              <label className="fb-label" htmlFor="fb-name">
-                আপনার নাম
+              <label htmlFor="fb-name" className="block text-sm font-bold text-[#1e293b] mb-1.5">
+                আপনার নাম <span className="text-red-500">*</span>
               </label>
               <input
                 id="fb-name"
-                className={`fb-input ${errors.name ? "fb-input-err" : ""}`}
+                type="text"
+                className={`w-full rounded-xl border ${
+                  errors.name
+                    ? "border-red-500 ring-2 ring-red-500/20"
+                    : "border-[rgba(59,130,246,.35)] focus:border-[#2563eb]"
+                } bg-white px-4 py-3 text-sm font-semibold text-[#0f172a] placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-[#2563eb]/15 transition-all shadow-sm`}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onFocus={maybeFireCheckout}
                 placeholder="যেমন: সাদিয়া ইসলাম"
               />
-              {errors.name ? <p className="fb-err">{errors.name}</p> : null}
+              {errors.name ? <p className="mt-1 text-xs font-semibold text-red-500">{errors.name}</p> : null}
             </div>
+
             <div>
-              <label className="fb-label" htmlFor="fb-mobile">
-                মোবাইল নম্বর
+              <label htmlFor="fb-mobile" className="block text-sm font-bold text-[#1e293b] mb-1.5">
+                মোবাইল নম্বর <span className="text-red-500">*</span>
               </label>
               <input
                 id="fb-mobile"
                 type="tel"
                 inputMode="numeric"
                 maxLength={11}
-                className={`fb-input ${errors.mobile ? "fb-input-err" : ""}`}
+                className={`w-full rounded-xl border ${
+                  errors.mobile
+                    ? "border-red-500 ring-2 ring-red-500/20"
+                    : "border-[rgba(59,130,246,.35)] focus:border-[#2563eb]"
+                } bg-white px-4 py-3 text-sm font-semibold text-[#0f172a] placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-[#2563eb]/15 transition-all shadow-sm`}
                 value={mobile}
                 onChange={(e) => handleMobileChange(e.target.value)}
                 onFocus={maybeFireCheckout}
                 placeholder="017XXXXXXXX"
               />
-              {errors.mobile ? <p className="fb-err">{errors.mobile}</p> : null}
+              {errors.mobile ? <p className="mt-1 text-xs font-semibold text-red-500">{errors.mobile}</p> : null}
             </div>
+
             <div>
-              <label className="fb-label" htmlFor="fb-address">
-                সম্পূর্ণ ঠিকানা
+              <label htmlFor="fb-address" className="block text-sm font-bold text-[#1e293b] mb-1.5">
+                সম্পূর্ণ ঠিকানা <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="fb-address"
                 rows={3}
-                className={`fb-input ${errors.address ? "fb-input-err" : ""}`}
+                className={`w-full rounded-xl border ${
+                  errors.address
+                    ? "border-red-500 ring-2 ring-red-500/20"
+                    : "border-[rgba(59,130,246,.35)] focus:border-[#2563eb]"
+                } bg-white px-4 py-3 text-sm font-semibold text-[#0f172a] placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-[#2563eb]/15 transition-all shadow-sm resize-none`}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 onFocus={maybeFireCheckout}
                 placeholder="গ্রাম/এলাকা, থানা, জেলা"
               />
-              {errors.address ? <p className="fb-err">{errors.address}</p> : null}
+              {errors.address ? <p className="mt-1 text-xs font-semibold text-red-500">{errors.address}</p> : null}
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-4 pt-1">
               <div>
-                <span className="fb-label">ডেলিভারি এলাকা</span>
+                <span className="block text-sm font-bold text-[#1e293b] mb-1.5">ডেলিভারি এলাকা</span>
                 <div className="grid grid-cols-2 gap-2">
                   {(
                     [
@@ -187,10 +207,10 @@ export function FoilBagCheckoutForm({
                       key={key}
                       type="button"
                       onClick={() => setDeliveryArea(key)}
-                      className={`rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${
+                      className={`rounded-xl border px-3 py-2.5 text-xs font-bold transition-all ${
                         deliveryArea === key
-                          ? "border-[#3b82f6] bg-[rgba(59,130,246,.12)] text-[#2563eb]"
-                          : "border-[rgba(59,130,246,.2)] bg-white text-[#334155]"
+                          ? "border-[#3b82f6] bg-[rgba(59,130,246,.12)] text-[#2563eb] shadow-sm"
+                          : "border-[rgba(59,130,246,.2)] bg-white text-[#334155] hover:border-[#3b82f6]/40"
                       }`}
                     >
                       {label}
@@ -198,23 +218,24 @@ export function FoilBagCheckoutForm({
                   ))}
                 </div>
               </div>
+
               <div>
-                <span className="fb-label">পরিমাণ</span>
-                <div className="flex items-center gap-3">
+                <span className="block text-sm font-bold text-[#1e293b] mb-1.5">পরিমাণ</span>
+                <div className="flex items-center gap-3 h-10">
                   <button
                     type="button"
                     aria-label="কমান"
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="w-10 h-10 rounded-full border border-[rgba(59,130,246,.35)] text-[#2563eb] font-bold bg-white"
+                    className="w-10 h-10 rounded-xl border border-[rgba(59,130,246,.35)] text-[#2563eb] text-lg font-extrabold bg-white hover:bg-blue-50 transition-colors flex items-center justify-center shadow-sm"
                   >
                     −
                   </button>
-                  <span className="text-lg font-extrabold w-8 text-center">{bn(quantity)}</span>
+                  <span className="text-xl font-extrabold w-8 text-center text-[#0f172a]">{bn(quantity)}</span>
                   <button
                     type="button"
                     aria-label="বাড়ান"
                     onClick={() => setQuantity((q) => Math.min(20, q + 1))}
-                    className="w-10 h-10 rounded-full border border-[rgba(59,130,246,.35)] text-[#2563eb] font-bold bg-white"
+                    className="w-10 h-10 rounded-xl border border-[rgba(59,130,246,.35)] text-[#2563eb] text-lg font-extrabold bg-white hover:bg-blue-50 transition-colors flex items-center justify-center shadow-sm"
                   >
                     +
                   </button>

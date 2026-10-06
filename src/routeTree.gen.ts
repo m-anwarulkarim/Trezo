@@ -15,6 +15,7 @@ import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AdminAuthRouteImport } from './routes/admin.auth'
 import { Route as LpFoilBagRouteImport } from './routes/lp.foil-bag'
+import { Route as LpFoilBag2RouteImport } from './routes/lp.foil-bag-2'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminLandingPagesRouteImport } from './routes/_authenticated/admin.landing-pages'
 import { Route as AuthenticatedAdminOrdersIndexRouteImport } from './routes/_authenticated/admin.orders.index'
@@ -53,6 +54,11 @@ const AdminAuthRoute = AdminAuthRouteImport.update({
 const LpFoilBagRoute = LpFoilBagRouteImport.update({
   id: '/lp/foil-bag',
   path: '/lp/foil-bag',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LpFoilBag2Route = LpFoilBag2RouteImport.update({
+  id: '/lp/foil-bag-2',
+  path: '/lp/foil-bag-2',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/auth': typeof AdminAuthRoute
   '/lp/foil-bag': typeof LpFoilBagRoute
+  '/lp/foil-bag-2': typeof LpFoilBag2Route
   '/admin/landing-pages': typeof AuthenticatedAdminLandingPagesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/orders/create': typeof AuthenticatedAdminOrdersCreateRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/thank-you': typeof ThankYouRoute
   '/admin/auth': typeof AdminAuthRoute
   '/lp/foil-bag': typeof LpFoilBagRoute
+  '/lp/foil-bag-2': typeof LpFoilBag2Route
   '/admin/landing-pages': typeof AuthenticatedAdminLandingPagesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/orders/create': typeof AuthenticatedAdminOrdersCreateRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/auth': typeof AdminAuthRoute
   '/lp/foil-bag': typeof LpFoilBagRoute
+  '/lp/foil-bag-2': typeof LpFoilBag2Route
   '/_authenticated/admin/landing-pages': typeof AuthenticatedAdminLandingPagesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/orders/create': typeof AuthenticatedAdminOrdersCreateRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/auth'
     | '/lp/foil-bag'
+    | '/lp/foil-bag-2'
     | '/admin/landing-pages'
     | '/admin/'
     | '/admin/orders/create'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/thank-you'
     | '/admin/auth'
     | '/lp/foil-bag'
+    | '/lp/foil-bag-2'
     | '/admin/landing-pages'
     | '/admin'
     | '/admin/orders/create'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/admin/auth'
     | '/lp/foil-bag'
+    | '/lp/foil-bag-2'
     | '/_authenticated/admin/landing-pages'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/orders/create'
@@ -227,6 +239,7 @@ export interface RootRouteChildren {
   ThankYouRoute: typeof ThankYouRoute
   AdminAuthRoute: typeof AdminAuthRoute
   LpFoilBagRoute: typeof LpFoilBagRoute
+  LpFoilBag2Route: typeof LpFoilBag2Route
 }
 
 declare module '@tanstack/react-router' {
@@ -271,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/lp/foil-bag'
       fullPath: '/lp/foil-bag'
       preLoaderRoute: typeof LpFoilBagRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lp/foil-bag-2': {
+      id: '/lp/foil-bag-2'
+      path: '/lp/foil-bag-2'
+      fullPath: '/lp/foil-bag-2'
+      preLoaderRoute: typeof LpFoilBag2RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -394,6 +414,7 @@ const rootRouteChildren: RootRouteChildren = {
   ThankYouRoute: ThankYouRoute,
   AdminAuthRoute: AdminAuthRoute,
   LpFoilBagRoute: LpFoilBagRoute,
+  LpFoilBag2Route: LpFoilBag2Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
