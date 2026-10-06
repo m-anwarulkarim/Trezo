@@ -455,7 +455,11 @@ function FoilBagLanding() {
     }
     setMobile(digits);
     if (errors.mobile) {
-      setErrors((prev) => ({ ...prev, mobile: undefined }));
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.mobile;
+        return next;
+      });
     }
   };
 
