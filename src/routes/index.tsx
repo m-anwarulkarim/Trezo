@@ -490,12 +490,33 @@ function TapFilterLanding() {
     if (!name.trim()) e.name = "আপনার নামটি লিখুন";
     else if (name.trim().length < 2) e.name = "নামটি অন্তত ২ অক্ষরের হতে হবে";
     const m = mobile.replace(/\D/g, "");
-    if (!m) e.mobile = "মোবাইল নম্বরটি লিখুন";
-    else if (!PHONE_RE.test(m)) e.mobile = "১১ ডিজিটের সঠিক নম্বর দিন, যেমন: ০১৭XXXXXXXX";
+    if (!m) {
+      e.mobile = "মোবাইল নম্বরটি লিখুন";
+    } else if (!m.startsWith("01")) {
+      e.mobile = "নম্বরটি অবশ্যই 01 দিয়ে শুরু হতে হবে";
+    } else if (m.length < 11) {
+      e.mobile = "১১ ডিজিটের সম্পূর্ণ নম্বর দিন (যেমন: 01712345678)";
+    } else if (!PHONE_RE.test(m)) {
+      e.mobile = "১১ ডিজিটের সঠিক মোবাইল নম্বর দিন";
+    }
     if (!address.trim()) e.address = "ডেলিভারির ঠিকানাটি লিখুন";
     else if (address.trim().length < 5) e.address = "সম্পূর্ণ ঠিকানা লিখুন — গ্রাম/এলাকা, থানা ও জেলা";
     setErrors(e);
     return Object.keys(e).length === 0;
+  };
+
+  const handleMobileChange = (val: string) => {
+    let digits = val.replace(/\D/g, "");
+    if (digits.startsWith("880") && digits.length > 10) {
+      digits = digits.slice(2);
+    }
+    if (digits.length > 11) {
+      digits = digits.slice(0, 11);
+    }
+    setMobile(digits);
+    if (errors.mobile) {
+      setErrors((prev) => ({ ...prev, mobile: undefined }));
+    }
   };
 
   const isFormFilled = () => {
@@ -1113,14 +1134,14 @@ function TapFilterLanding() {
                     <input
                       type="tel"
                       inputMode="numeric"
+                      maxLength={11}
                       className={`tf-input ${errors.mobile ? "tf-input-err" : ""}`}
-                      placeholder="০১XXXXXXXXX"
+                      placeholder="017XXXXXXXX"
                       value={mobile}
                       onChange={(e) => {
-                        setMobile(e.target.value);
+                        handleMobileChange(e.target.value);
                         maybeFireCheckout();
                       }}
-                      maxLength={14}
                     />
                     {errors.mobile && <div className="tf-err">{errors.mobile}</div>}
                   </div>
