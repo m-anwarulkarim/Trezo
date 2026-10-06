@@ -1,14 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { BarChart3, TrendingUp, Globe, ShoppingBag, Truck, Zap } from "lucide-react";
+import { BarChart3, TrendingUp, Zap } from "lucide-react";
 import { OverviewActionSection } from "@/components/admin/overview/OverviewActionSection";
 import { OverviewChartsSection } from "@/components/admin/overview/OverviewChartsSection";
-import { OverviewCourierSection } from "@/components/admin/overview/OverviewCourierSection";
 import { OverviewHeader } from "@/components/admin/overview/OverviewHeader";
 import { OverviewKpiCards } from "@/components/admin/overview/OverviewKpiCards";
-import { OverviewProductSection } from "@/components/admin/overview/OverviewProductSection";
-import { OverviewTrafficSection } from "@/components/admin/overview/OverviewTrafficSection";
 import { fetchOverviewMetrics } from "@/lib/overview";
 import type { DateRangePreset } from "@/lib/orders";
 
@@ -41,7 +38,7 @@ function AdminOverview() {
         isFetching={overviewQuery.isFetching}
       />
 
-      {/* Module 1: KPI Summary Bar Cards */}
+      {/* KPI Summary Bar Cards */}
       <section className="space-y-3">
         <h2 className="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
           <BarChart3 className="h-4 w-4 text-primary" />
@@ -53,7 +50,7 @@ function AdminOverview() {
         />
       </section>
 
-      {/* Module 2: Interactive Visual Charts */}
+      {/* Interactive Visual Trend & Donut Charts */}
       <section className="space-y-3">
         <h2 className="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
           <TrendingUp className="h-4 w-4 text-emerald-500" />
@@ -65,43 +62,7 @@ function AdminOverview() {
         />
       </section>
 
-      {/* Module 3: Traffic Source Analytics */}
-      <section className="space-y-3">
-        <h2 className="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-          <Globe className="h-4 w-4 text-indigo-500" />
-          <span>ট্র্যাফিক সোর্স ও মার্কেটিং চ্যানেল</span>
-        </h2>
-        <OverviewTrafficSection
-          metrics={overviewQuery.data}
-          isLoading={overviewQuery.isLoading}
-        />
-      </section>
-
-      {/* Module 4: Product & Package Performance */}
-      <section className="space-y-3">
-        <h2 className="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-          <ShoppingBag className="h-4 w-4 text-purple-500" />
-          <span>প্রোডাক্ট ও প্যাকেজ পারফরম্যান্স</span>
-        </h2>
-        <OverviewProductSection
-          metrics={overviewQuery.data}
-          isLoading={overviewQuery.isLoading}
-        />
-      </section>
-
-      {/* Module 5: Courier & Area Insights */}
-      <section className="space-y-3">
-        <h2 className="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-          <Truck className="h-4 w-4 text-amber-500" />
-          <span>কুরিয়ার ও এরিয়া ইনসাইট</span>
-        </h2>
-        <OverviewCourierSection
-          metrics={overviewQuery.data}
-          isLoading={overviewQuery.isLoading}
-        />
-      </section>
-
-      {/* Module 6: Smart Action Hub & Live Recent Orders */}
+      {/* Smart Action Hub & Live Order Stream */}
       <section className="space-y-3">
         <h2 className="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
           <Zap className="h-4 w-4 text-rose-500" />
