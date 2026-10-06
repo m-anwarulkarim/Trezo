@@ -149,6 +149,44 @@ export async function fetchOverviewMetrics(
   const trendMap: Record<string, DailyTrendItem> = {};
   const sourceMap: Record<string, { count: number; revenue: number }> = {};
 
+  // Pre-fill trendMap with continuous daily timeline so no dates are skipped
+  let rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 13);
+  let rangeEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  if (preset === "7days") {
+    rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+  } else if (preset === "30days") {
+    rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+  } else if (preset === "today") {
+    rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  } else if (preset === "yesterday") {
+    rangeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    rangeEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  } else if (fromISO) {
+    rangeStart = new Date(fromISO);
+    if (toISO) rangeEnd = new Date(toISO);
+  } else if (orders.length > 0 && orders[0]?.created_at) {
+    const earliest = new Date(orders[0].created_at);
+    const min30 = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+    rangeStart = earliest < min30 ? min30 : earliest;
+  }
+
+  const currDate = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate());
+  const endDateObj = new Date(rangeEnd.getFullYear(), rangeEnd.getMonth(), rangeEnd.getDate());
+
+  while (currDate <= endDateObj) {
+    const dateKey = format(currDate, "yyyy-MM-dd");
+    const dateLabel = format(currDate, "d MMM", { locale: bn });
+    trendMap[dateKey] = {
+      dateKey,
+      dateLabel,
+      revenue: 0,
+      orders: 0,
+      confirmedOrders: 0,
+    };
+    currDate.setDate(currDate.getDate() + 1);
+  }
+
   let insideDhakaCount = 0;
   let insideDhakaRevenue = 0;
   let insideDhakaCharge = 0;
