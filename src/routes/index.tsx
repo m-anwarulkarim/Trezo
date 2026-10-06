@@ -507,12 +507,27 @@ function TapFilterLanding() {
 
   const handleMobileChange = (val: string) => {
     let digits = val.replace(/\D/g, "");
+
+    // Strip +880 or 880 prefix if pasted
     if (digits.startsWith("880") && digits.length > 10) {
       digits = digits.slice(2);
     }
+
+    // Strict real-time 01 prefix enforcement
+    if (digits.length > 0) {
+      if (digits.startsWith("1") && !digits.startsWith("01")) {
+        digits = "0" + digits;
+      } else if (!digits.startsWith("0")) {
+        digits = "01" + digits;
+      } else if (digits.length >= 2 && !digits.startsWith("01")) {
+        digits = "01" + digits.slice(2);
+      }
+    }
+
     if (digits.length > 11) {
       digits = digits.slice(0, 11);
     }
+
     setMobile(digits);
     if (errors.mobile) {
       setErrors((prev) => {
