@@ -7,9 +7,9 @@ import { pathaoSyncStatuses, pathaoAutoEntry } from "@/lib/pathao.functions";
  * Custom hook to automatically sync Pathao courier delivery statuses and
  * auto-entry confirmed orders in the background at regular intervals.
  * 
- * @param intervalMs Sync interval in milliseconds (default: 60000 = 1 minute)
+ * @param intervalMs Sync interval in milliseconds (default: 30000 = 30 seconds)
  */
-export function useCourierAutoSync(intervalMs = 60000) {
+export function useCourierAutoSync(intervalMs = 30000) {
   const queryClient = useQueryClient();
   const syncFn = useServerFn(pathaoSyncStatuses);
   const autoFn = useServerFn(pathaoAutoEntry);
@@ -44,10 +44,10 @@ export function useCourierAutoSync(intervalMs = 60000) {
       }
     };
 
-    // Run initial sync after a short delay (3s) to not block initial page render
+    // Run initial sync after 1s
     const initialTimer = setTimeout(() => {
       void runSync();
-    }, 3000);
+    }, 1000);
 
     // Set up recurring interval
     timer = setInterval(() => {

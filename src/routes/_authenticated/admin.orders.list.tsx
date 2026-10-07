@@ -175,7 +175,7 @@ function OrderListPage() {
   useEffect(() => setSubFilter("all"), [statusFilter]);
 
   // Auto-sync courier status in background
-  useCourierAutoSync(60000);
+  useCourierAutoSync(30000);
 
   const statuses =
     statusFilter === "all"

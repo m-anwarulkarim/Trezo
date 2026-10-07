@@ -365,8 +365,28 @@ export async function fetchPathaoOrderInfo(
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
   });
   if (!res.ok) return null;
-  const data = (await res.json().catch(() => null)) as { data?: { order_status?: string } } | null;
-  return data?.data ?? null;
+  const data = (await res.json().catch(() => null)) as {
+    data?: {
+      order_status?: string;
+      status?: string;
+      order_status_slug?: string;
+      consignment_status?: string;
+    };
+    order_status?: string;
+    status?: string;
+  } | null;
+
+  if (!data) return null;
+  const inner = (data.data ?? data) as Record<string, unknown>;
+  const rawStatus =
+    inner["order_status"] ||
+    inner["status"] ||
+    inner["order_status_slug"] ||
+    inner["consignment_status"] ||
+    data.order_status ||
+    data.status;
+
+  return rawStatus ? { order_status: String(rawStatus) } : null;
 }
 
 export type PathaoEntryResult = {
@@ -476,29 +496,47 @@ export async function createPathaoOrder(orderId: string): Promise<PathaoEntryRes
 export async function syncPathaoStatuses(limit = 100) {
   const db = await admin();
   const settings = await loadPathaoSettings();
-  const { token, baseUrl } = await getAccessToken(settings);
+  if (!settings["pathao_client_id"] || !settings["pathao_client_secret"]) {
+    return { synced: 0, total: 0 };
+  }
+
+  let token = "";
+  let baseUrl = "";
+  try {
+    const creds = await getAccessToken(settings);
+    token = creds.token;
+    baseUrl = creds.baseUrl;
+  } catch {
+    return { synced: 0, total: 0 };
+  }
 
   const SYNC_STATUSES = ["entry_done", "shipped", "hold", "pending", "confirmed", "partial"];
   const { data: orders } = await db
     .from("orders")
-    .select("id, consignment_id, status")
-    .eq("courier_provider", "pathao")
-    .eq("is_courier_entered", true)
+    .select("id, consignment_id, tracking_code, status, courier_provider")
     .eq("is_deleted", false)
     .in("status", SYNC_STATUSES)
-    .not("consignment_id", "is", null)
+    .or("is_courier_entered.eq.true,consignment_id.not.is.null,tracking_code.not.is.null")
     .limit(limit);
 
   let updated = 0;
   for (const order of orders ?? []) {
-    if (!order.consignment_id) continue;
-    const info = await fetchPathaoOrderInfo(baseUrl, token, order.consignment_id);
+    const cid = order.consignment_id || order.tracking_code;
+    if (!cid) continue;
+
+    const info = await fetchPathaoOrderInfo(baseUrl, token, cid);
     const mapped = mapPathaoStatus(info?.order_status);
     if (!mapped || mapped === order.status) continue;
+
     await db
       .from("orders")
-      .update({ status: mapped, delivery_status: mapped })
+      .update({
+        status: mapped,
+        delivery_status: mapped,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", order.id);
+
     updated += 1;
   }
 

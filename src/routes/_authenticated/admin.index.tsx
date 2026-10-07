@@ -25,7 +25,7 @@ function AdminOverview() {
   const [datePreset, setDatePreset] = useState<DateRangePreset>("all");
 
   // Automatically sync Pathao courier statuses & auto-entry in background
-  useCourierAutoSync(60000);
+  useCourierAutoSync(30000);
 
   const overviewQuery = useQuery({
     queryKey: ["admin-overview-metrics", datePreset],

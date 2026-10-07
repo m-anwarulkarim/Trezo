@@ -117,7 +117,7 @@ function WebOrders() {
     setSelectedIds(new Set());
   }, [statusFilter, debouncedSearch, dateRange, customFrom, customTo]);
 
-  useCourierAutoSync(60000);
+  useCourierAutoSync(30000);
 
   const statuses = statusFilter === "all" ? WEB_STATUS_VALUES : [statusFilter];
   const fromISO = getDateRangeISO(dateRange, customFrom, customTo);
