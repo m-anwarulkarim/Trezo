@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BarChart3, TrendingUp, Zap } from "lucide-react";
 import { OverviewActionSection } from "@/components/admin/overview/OverviewActionSection";
 import { OverviewChartsSection } from "@/components/admin/overview/OverviewChartsSection";
@@ -8,6 +8,8 @@ import { OverviewHeader } from "@/components/admin/overview/OverviewHeader";
 import { OverviewKpiCards } from "@/components/admin/overview/OverviewKpiCards";
 import { fetchOverviewMetrics } from "@/lib/overview";
 import type { DateRangePreset } from "@/lib/orders";
+import { supabase } from "@/integrations/supabase/client";
+import { useCourierAutoSync } from "@/hooks/useCourierAutoSync";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({
@@ -22,11 +24,33 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 function AdminOverview() {
   const [datePreset, setDatePreset] = useState<DateRangePreset>("all");
 
+  // Automatically sync Pathao courier statuses & auto-entry in background
+  useCourierAutoSync(60000);
+
   const overviewQuery = useQuery({
     queryKey: ["admin-overview-metrics", datePreset],
     queryFn: () => fetchOverviewMetrics(datePreset),
-    staleTime: 1000 * 30, // 30 seconds
+    staleTime: 1000 * 15, // 15 seconds
+    refetchInterval: 1000 * 15, // Auto polling every 15s
   });
+
+  // Subscribe to real-time database updates on the orders table
+  useEffect(() => {
+    const channel = supabase
+      .channel("realtime-dashboard-orders")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => {
+          void overviewQuery.refetch();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [overviewQuery]);
 
   return (
     <div className="space-y-6 p-4 md:p-6 max-w-7xl mx-auto">

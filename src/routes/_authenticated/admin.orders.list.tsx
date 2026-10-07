@@ -27,6 +27,7 @@ import {
 } from "@/components/admin/PathaoEntryDialog";
 import { TrackingDialog } from "@/components/admin/TrackingDialog";
 import { trackConfirmedPurchases } from "@/lib/tracking.functions";
+import { useCourierAutoSync } from "@/hooks/useCourierAutoSync";
 
 import {
   AlertDialog,
@@ -173,6 +174,9 @@ function OrderListPage() {
 
   useEffect(() => setSubFilter("all"), [statusFilter]);
 
+  // Auto-sync courier status in background
+  useCourierAutoSync(60000);
+
   const statuses =
     statusFilter === "all"
       ? ALL_STATUS_VALUES
@@ -214,6 +218,8 @@ function OrderListPage() {
       if (error) throw error;
       return { orders: (data ?? []) as OrderRow[], count: count ?? 0 };
     },
+    staleTime: 1000 * 15,
+    refetchInterval: 1000 * 15,
   });
 
   const orders = ordersQuery.data?.orders ?? [];
@@ -245,7 +251,28 @@ function OrderListPage() {
       counts["all"] = all;
       return counts;
     },
+    staleTime: 1000 * 15,
+    refetchInterval: 1000 * 15,
   });
+
+  // Realtime Postgres subscription for order changes
+  useEffect(() => {
+    const channel = supabase
+      .channel("realtime-order-list")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => {
+          void ordersQuery.refetch();
+          void countsQuery.refetch();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [ordersQuery, countsQuery]);
   const statusCounts = countsQuery.data;
 
   const orderIds = useMemo(() => orders.map((o) => o.id), [orders]);

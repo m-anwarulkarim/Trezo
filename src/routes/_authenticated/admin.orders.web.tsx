@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useCourierAutoSync } from "@/hooks/useCourierAutoSync";
 
 import { DateRangeFilter } from "@/components/admin/DateRangeFilter";
 import { OrderDetailsDialog } from "@/components/admin/OrderDetailsDialog";
@@ -116,6 +117,8 @@ function WebOrders() {
     setSelectedIds(new Set());
   }, [statusFilter, debouncedSearch, dateRange, customFrom, customTo]);
 
+  useCourierAutoSync(60000);
+
   const statuses = statusFilter === "all" ? WEB_STATUS_VALUES : [statusFilter];
   const fromISO = getDateRangeISO(dateRange, customFrom, customTo);
   const toISO = getDateRangeToISO(dateRange, customTo);
@@ -143,6 +146,8 @@ function WebOrders() {
       if (error) throw error;
       return { orders: (data ?? []) as OrderRow[], count: count ?? 0 };
     },
+    staleTime: 1000 * 15,
+    refetchInterval: 1000 * 15,
   });
 
   const orders = ordersQuery.data?.orders ?? [];
@@ -167,7 +172,28 @@ function WebOrders() {
       }
       return map;
     },
+    staleTime: 1000 * 15,
+    refetchInterval: 1000 * 15,
   });
+
+  // Realtime Postgres subscription for order changes
+  useEffect(() => {
+    const channel = supabase
+      .channel("realtime-web-orders")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => {
+          void ordersQuery.refetch();
+          void countsQuery.refetch();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [ordersQuery, countsQuery]);
   const statusCounts = countsQuery.data;
 
   const orderIds = useMemo(() => orders.map((o) => o.id), [orders]);
